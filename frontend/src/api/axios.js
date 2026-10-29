@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+// Utilise la route /api relative (fonctionne sur localhost comme sur Vercel)
 const API = axios.create({
   baseURL: '/api',
 });
