@@ -52,10 +52,10 @@ export default function Contact() {
           {/* Info cards */}
           <div className="space-y-6">
             {[
-              { icon: <Phone />, title: 'Téléphone', lines: ['01 23 45 67 89', 'Lun-Ven 8h-19h'] },
-              { icon: <Mail />, title: 'Email', lines: ['contact@franceexpress.fr', 'Réponse sous 24h'] },
-              { icon: <MapPin />, title: 'Adresse', lines: ['12 Rue de la Logistique', '75001 Paris, France'] },
-              { icon: <Clock />, title: 'Horaires', lines: ['Lun-Ven : 8h-19h', 'Sam : 9h-13h'] },
+              { icon: <Phone />, title: 'Téléphone & Service Client', lines: ['+33 6 44 69 41 92', 'Lundi au Samedi : 8h - 20h'] },
+              { icon: <Mail />, title: 'Email', lines: ['contact@tracknova-logistics.fr', 'Réponse sous 24h'] },
+              { icon: <MapPin />, title: 'Plateforme Logistique', lines: ['Plateforme Paris Roissy', '95700 Roissy-en-France'] },
+              { icon: <Clock />, title: 'Horaires expéditions', lines: ['Départs quotidiens 24/7', 'Service continu en France'] },
             ].map(info => (
               <div key={info.title} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex gap-4">
                 <div className="w-12 h-12 bg-blue-100 text-blue-900 rounded-xl flex items-center justify-center flex-shrink-0">
