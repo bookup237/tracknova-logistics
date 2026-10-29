@@ -78,30 +78,30 @@ export default function Contact() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Nom complet *</label>
                     <input name="name" value={form.name} onChange={handleChange} required
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                      className="w-full px-4 py-3 text-slate-900 bg-white font-medium border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
                     <input name="email" type="email" value={form.email} onChange={handleChange} required
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                      className="w-full px-4 py-3 text-slate-900 bg-white font-medium border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                   </div>
                 </div>
                 <div className="grid md:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
                     <input name="phone" value={form.phone} onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                      className="w-full px-4 py-3 text-slate-900 bg-white font-medium border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Sujet *</label>
                     <input name="subject" value={form.subject} onChange={handleChange} required
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                      className="w-full px-4 py-3 text-slate-900 bg-white font-medium border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Message *</label>
                   <textarea name="message" value={form.message} onChange={handleChange} required rows={5}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" />
+                    className="w-full px-4 py-3 text-slate-900 bg-white font-medium border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" />
                 </div>
                 <button type="submit" disabled={loading}
                   className="w-full py-4 bg-blue-900 hover:bg-blue-800 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50">

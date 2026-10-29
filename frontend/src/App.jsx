@@ -22,7 +22,7 @@ import Quotes from './admin/Quotes';
 
 function PublicLayout({ children }) {
   return (
-    <div className="min-h-screen flex flex-col bg-slate-900 text-slate-100">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
       <Navbar />
       <main className="flex-grow">{children}</main>
       <Footer />
