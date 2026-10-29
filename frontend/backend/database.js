@@ -1,7 +1,21 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
-const dbPath = path.join(__dirname, 'database.json');
+// Sur Vercel (serverless lambda), seul /tmp est accessible en écriture
+const isVercel = Boolean(process.env.VERCEL);
+const sourceDbPath = path.join(__dirname, 'database.json');
+const targetDbPath = isVercel ? path.join(os.tmpdir(), 'database.json') : sourceDbPath;
+
+if (isVercel) {
+  try {
+    if (!fs.existsSync(targetDbPath) && fs.existsSync(sourceDbPath)) {
+      fs.copyFileSync(sourceDbPath, targetDbPath);
+    }
+  } catch (err) {
+    console.error('Erreur copie DB vers /tmp:', err);
+  }
+}
 
 // Structure initiale
 const initialData = {
@@ -31,6 +45,10 @@ class JSONDatabase {
     try {
       if (fs.existsSync(this.filePath)) {
         const raw = fs.readFileSync(this.filePath, 'utf8');
+        return JSON.parse(raw);
+      }
+      if (fs.existsSync(sourceDbPath)) {
+        const raw = fs.readFileSync(sourceDbPath, 'utf8');
         return JSON.parse(raw);
       }
     } catch (e) {
@@ -107,5 +125,5 @@ class JSONDatabase {
   }
 }
 
-const db = new JSONDatabase(dbPath);
+const db = new JSONDatabase(targetDbPath);
 module.exports = db;
