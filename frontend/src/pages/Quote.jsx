@@ -224,6 +224,12 @@ function CityAutocomplete({ label, selectedId, onSelect, allCities }) {
   );
 }
 
+const INPUT_STYLE = {
+  color: '#0f172a',
+  backgroundColor: '#ffffff',
+  WebkitTextFillColor: '#0f172a'
+};
+
 export default function Quote() {
   const [searchParams] = useSearchParams();
   const initialOffer = searchParams.get('offre') || 'standard';
@@ -342,6 +348,7 @@ export default function Quote() {
                     value={form.name}
                     onChange={handleChange}
                     required
+                    style={INPUT_STYLE}
                     placeholder="Jean Dupont"
                     className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
                   />
@@ -354,6 +361,7 @@ export default function Quote() {
                     value={form.email}
                     onChange={handleChange}
                     required
+                    style={INPUT_STYLE}
                     placeholder="jean.dupont@email.fr"
                     className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
                   />
@@ -365,6 +373,7 @@ export default function Quote() {
                     value={form.phone}
                     onChange={handleChange}
                     required
+                    style={INPUT_STYLE}
                     placeholder="06 12 34 56 78"
                     className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
                   />
@@ -408,6 +417,7 @@ export default function Quote() {
                     placeholder="Ex : 2.5"
                     value={form.weight}
                     onChange={handleChange}
+                    style={INPUT_STYLE}
                     className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
                   />
                 </div>
@@ -418,6 +428,7 @@ export default function Quote() {
                     placeholder="Ex : 30 × 20 × 15"
                     value={form.dimensions}
                     onChange={handleChange}
+                    style={INPUT_STYLE}
                     className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
                   />
                 </div>
@@ -427,6 +438,7 @@ export default function Quote() {
                     name="package_type"
                     value={form.package_type}
                     onChange={handleChange}
+                    style={INPUT_STYLE}
                     className="w-full px-3.5 py-2.5 text-sm font-bold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
                   >
                     <option value="standard" className="text-slate-900 bg-white">Standard (48h - 72h)</option>
@@ -444,6 +456,7 @@ export default function Quote() {
                   value={form.description}
                   onChange={handleChange}
                   rows={3}
+                  style={INPUT_STYLE}
                   placeholder="Marchandise fragile, besoin d'un créneau horaire, accès difficile..."
                   className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm resize-none"
                 />

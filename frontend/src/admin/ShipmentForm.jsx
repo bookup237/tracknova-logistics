@@ -1,8 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Package, Send, ArrowLeft, MapPin, Search, ChevronDown, Check } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Package, Send, ArrowLeft, MapPin, Search, ChevronDown, Check, Copy, ExternalLink, CheckCircle2, PlusCircle, ArrowRight } from 'lucide-react';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
+
+const INPUT_STYLE = {
+  color: '#0f172a',
+  backgroundColor: '#ffffff',
+  WebkitTextFillColor: '#0f172a'
+};
 
 const ALL_FRENCH_CITIES = [
   { id: 1, name: 'Paris', code_postal: '75000', region: 'Île-de-France' },
@@ -184,6 +190,8 @@ export default function ShipmentForm() {
   const navigate = useNavigate();
   const [cities, setCities] = useState(ALL_FRENCH_CITIES);
   const [loading, setLoading] = useState(false);
+  const [createdResult, setCreatedResult] = useState(null);
+  const [copied, setCopied] = useState(false);
   const [formData, setFormData] = useState({
     sender_name: '',
     sender_phone: '',
@@ -221,14 +229,120 @@ export default function ShipmentForm() {
     setLoading(true);
     try {
       const res = await API.post('/shipments', formData);
+      setCreatedResult({
+        tracking_number: res.data.tracking_number,
+        id: res.data.id,
+        sender: formData.sender_name,
+        receiver: formData.receiver_name,
+      });
       toast.success(`Colis créé avec succès ! N° ${res.data.tracking_number}`);
-      navigate('/backoffice-portal/expeditions');
     } catch (err) {
       toast.error(err.response?.data?.error || 'Erreur lors de la création');
     } finally {
       setLoading(false);
     }
   };
+
+  if (createdResult) {
+    return (
+      <div className="max-w-2xl mx-auto my-6 space-y-6">
+        <div className="bg-white rounded-3xl p-6 sm:p-10 border-2 border-emerald-500/30 shadow-2xl space-y-6 text-slate-900">
+          <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto text-emerald-600 shadow-sm">
+            <CheckCircle2 className="h-9 w-9" />
+          </div>
+
+          <div className="text-center space-y-2">
+            <span className="px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-black uppercase tracking-wider">
+              ✓ Synchronisé dans le Cloud & Prêt pour le client
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-950">
+              Colis enregistré avec succès !
+            </h2>
+            <p className="text-sm text-slate-600">
+              Ce numéro de suivi est immédiatement consultable par le client sur la page publique de suivi.
+            </p>
+          </div>
+
+          {/* Numéro de suivi officiel */}
+          <div className="bg-slate-50 border-2 border-slate-200 rounded-2xl p-6 text-center space-y-3">
+            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+              Numéro de suivi officiel généré
+            </div>
+            <div className="text-3xl sm:text-4xl font-mono font-black text-sky-700 tracking-wider select-all">
+              {createdResult.tracking_number}
+            </div>
+            <div className="flex justify-center pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(createdResult.tracking_number);
+                  setCopied(true);
+                  toast.success('Numéro de suivi copié !');
+                  setTimeout(() => setCopied(false), 2500);
+                }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-sm"
+              >
+                {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
+                <span>{copied ? 'Copié dans le presse-papier !' : 'Copier le numéro de suivi'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Informations récapitulatives */}
+          <div className="grid grid-cols-2 gap-3 text-xs bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div>
+              <span className="text-slate-500 block mb-0.5">Expéditeur :</span>
+              <strong className="text-slate-900 font-bold">{createdResult.sender}</strong>
+            </div>
+            <div>
+              <span className="text-slate-500 block mb-0.5">Destinataire :</span>
+              <strong className="text-slate-900 font-bold">{createdResult.receiver}</strong>
+            </div>
+          </div>
+
+          {/* Actions rapides */}
+          <div className="space-y-3 pt-2">
+            <a
+              href={`/suivi?numero=${createdResult.tracking_number}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-3.5 px-4 bg-sky-600 hover:bg-sky-500 text-white font-black text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <ExternalLink className="h-4 w-4" />
+              <span>Tester et vérifier le suivi client en direct (Nouvel onglet)</span>
+            </a>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setCreatedResult(null);
+                  setFormData({
+                    sender_name: '', sender_phone: '', sender_email: '', sender_address: '', sender_city_id: 1,
+                    receiver_name: '', receiver_phone: '', receiver_email: '', receiver_address: '', receiver_city_id: 3,
+                    package_description: '', weight: '2.5', dimensions: '30x20x15', package_type: 'express', notes: ''
+                  });
+                }}
+                className="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <PlusCircle className="h-4 w-4 text-sky-600" />
+                <span>Créer un autre colis</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => navigate('/backoffice-portal/expeditions')}
+                className="flex-1 py-3 px-4 border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Voir la liste des colis</span>
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 text-slate-900">
@@ -261,6 +375,7 @@ export default function ShipmentForm() {
                 value={formData.sender_name}
                 onChange={handleChange}
                 required
+                style={INPUT_STYLE}
                 placeholder="Ex : Boutique Parisienne"
                 className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
@@ -273,6 +388,7 @@ export default function ShipmentForm() {
                 value={formData.sender_phone}
                 onChange={handleChange}
                 required
+                style={INPUT_STYLE}
                 placeholder="06 12 34 56 78"
                 className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
@@ -284,6 +400,7 @@ export default function ShipmentForm() {
                 name="sender_email"
                 value={formData.sender_email}
                 onChange={handleChange}
+                style={INPUT_STYLE}
                 placeholder="contact@societe.fr"
                 className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
@@ -304,6 +421,7 @@ export default function ShipmentForm() {
                 value={formData.sender_address}
                 onChange={handleChange}
                 required
+                style={INPUT_STYLE}
                 placeholder="15 Rue de Paris"
                 className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
@@ -326,6 +444,7 @@ export default function ShipmentForm() {
                 value={formData.receiver_name}
                 onChange={handleChange}
                 required
+                style={INPUT_STYLE}
                 placeholder="Ex : M. Paul Bernard"
                 className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
@@ -338,6 +457,7 @@ export default function ShipmentForm() {
                 value={formData.receiver_phone}
                 onChange={handleChange}
                 required
+                style={INPUT_STYLE}
                 placeholder="07 98 76 54 32"
                 className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
@@ -349,6 +469,7 @@ export default function ShipmentForm() {
                 name="receiver_email"
                 value={formData.receiver_email}
                 onChange={handleChange}
+                style={INPUT_STYLE}
                 placeholder="destinataire@email.fr"
                 className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
@@ -369,6 +490,7 @@ export default function ShipmentForm() {
                 value={formData.receiver_address}
                 onChange={handleChange}
                 required
+                style={INPUT_STYLE}
                 placeholder="24 Avenue de Lyon"
                 className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
@@ -389,6 +511,7 @@ export default function ShipmentForm() {
                 name="package_type"
                 value={formData.package_type}
                 onChange={handleChange}
+                style={INPUT_STYLE}
                 className="w-full px-3.5 py-2.5 text-sm font-bold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               >
                 <option value="standard" className="text-slate-900 bg-white">Standard (48h - 72h)</option>
@@ -407,6 +530,7 @@ export default function ShipmentForm() {
                 value={formData.weight}
                 onChange={handleChange}
                 required
+                style={INPUT_STYLE}
                 className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
             </div>
@@ -418,6 +542,7 @@ export default function ShipmentForm() {
                 placeholder="30x20x15"
                 value={formData.dimensions}
                 onChange={handleChange}
+                style={INPUT_STYLE}
                 className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
             </div>
@@ -429,6 +554,7 @@ export default function ShipmentForm() {
                 placeholder="Documents administratifs, vêtements, pièces techniques..."
                 value={formData.package_description}
                 onChange={handleChange}
+                style={INPUT_STYLE}
                 className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
             </div>
@@ -439,6 +565,7 @@ export default function ShipmentForm() {
                 rows="2"
                 value={formData.notes}
                 onChange={handleChange}
+                style={INPUT_STYLE}
                 placeholder="Consignes de livraison, code porte, étage..."
                 className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm resize-none"
               ></textarea>

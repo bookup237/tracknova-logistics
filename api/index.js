@@ -3,6 +3,7 @@ import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import db from './db.js';
+import { saveShipmentToCloud, findShipmentInCloud, getAllCloudShipments } from './cloudStore.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'france_secret_key_tracknova_2026';
 
@@ -186,32 +187,59 @@ app.post('/api/public/quote', (req, res) => {
 });
 
 // ─────────────────────────────────────────────
-// ROUTE DE SUIVI DE COLIS
+// ROUTE DE SUIVI DE COLIS (avec fallback Cloud synchronisé)
 // ─────────────────────────────────────────────
-app.get('/api/tracking/:trackingNumber', (req, res) => {
+app.get('/api/tracking/:trackingNumber', async (req, res) => {
   try {
     const { trackingNumber } = req.params;
     const cleanNumber = (trackingNumber || '').trim().toUpperCase();
 
-    const shipment = db.findOne('shipments', s => s.tracking_number && s.tracking_number.toUpperCase() === cleanNumber);
+    let shipment = db.findOne('shipments', s => s.tracking_number && s.tracking_number.toUpperCase() === cleanNumber);
+    let history = [];
+
+    // Si pas trouvé dans la mémoire locale du conteneur Vercel, interroger le Cloud persistant
+    if (!shipment) {
+      try {
+        const cloudData = await findShipmentInCloud(cleanNumber);
+        if (cloudData && cloudData.shipment) {
+          shipment = cloudData.shipment;
+          history = Array.isArray(cloudData.history) ? cloudData.history : [];
+
+          // Enregistrer en cache local
+          try {
+            const already = db.findOne('shipments', s => s.tracking_number === shipment.tracking_number);
+            if (!already) {
+              db.insert('shipments', shipment);
+              for (const h of history) {
+                db.insert('tracking_history', h);
+              }
+            }
+          } catch (e) {
+            console.warn('Cache local warning:', e.message);
+          }
+        }
+      } catch (errCloud) {
+        console.error('Erreur recherche Cloud:', errCloud);
+      }
+    } else {
+      history = db
+        .find('tracking_history', th => Number(th.shipment_id) === Number(shipment.id))
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }
 
     if (!shipment) {
       return res.status(404).json({ error: 'Aucun colis trouvé avec ce numéro de suivi' });
     }
 
-    const senderCity = db.findById('cities', shipment.sender_city_id);
-    const receiverCity = db.findById('cities', shipment.receiver_city_id);
-
-    const history = db
-      .find('tracking_history', th => Number(th.shipment_id) === Number(shipment.id))
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const senderCity = db.findById('cities', shipment.sender_city_id) || { name: shipment.sender_city_name || shipment.sender_city || 'France' };
+    const receiverCity = db.findById('cities', shipment.receiver_city_id) || { name: shipment.receiver_city_name || shipment.receiver_city || 'France' };
 
     const publicShipment = {
       tracking_number: shipment.tracking_number,
       status: shipment.status,
       package_type: shipment.package_type,
-      sender_city: senderCity ? senderCity.name : 'France',
-      receiver_city: receiverCity ? receiverCity.name : 'France',
+      sender_city: senderCity ? senderCity.name : (shipment.sender_city_name || 'France'),
+      receiver_city: receiverCity ? receiverCity.name : (shipment.receiver_city_name || 'France'),
       sender_name: shipment.sender_name,
       receiver_name: shipment.receiver_name,
       weight: shipment.weight,
@@ -511,9 +539,29 @@ app.delete('/api/admin/users/:id', authenticateToken, requireAdmin, (req, res) =
 // ─────────────────────────────────────────────
 // EXPÉDITIONS (CRUD)
 // ─────────────────────────────────────────────
-app.get('/api/shipments', authenticateToken, requireStaff, (req, res) => {
+app.get('/api/shipments', authenticateToken, requireStaff, async (req, res) => {
   try {
     const { status, page = 1, limit = 20, search } = req.query;
+
+    // Synchronisation avec le Cloud persistant pour inclure tous les colis générés
+    try {
+      const cloudData = await getAllCloudShipments();
+      for (const item of cloudData) {
+        if (item.shipment && item.shipment.tracking_number) {
+          const exists = db.findOne('shipments', s => s.tracking_number === item.shipment.tracking_number);
+          if (!exists) {
+            db.insert('shipments', item.shipment);
+            if (Array.isArray(item.history)) {
+              for (const h of item.history) {
+                db.insert('tracking_history', h);
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Sync cloud shipments warning:', e.message);
+    }
 
     let shipments = db.find('shipments');
 
@@ -542,8 +590,8 @@ app.get('/api/shipments', authenticateToken, requireStaff, (req, res) => {
       const u = db.findById('users', s.created_by);
       return {
         ...s,
-        sender_city_name: sc ? sc.name : 'Inconnu',
-        receiver_city_name: rc ? rc.name : 'Inconnu',
+        sender_city_name: sc ? sc.name : (s.sender_city_name || 'Inconnu'),
+        receiver_city_name: rc ? rc.name : (s.receiver_city_name || 'Inconnu'),
         created_by_name: u ? u.full_name : 'Staff'
       };
     });
@@ -562,9 +610,22 @@ app.get('/api/shipments', authenticateToken, requireStaff, (req, res) => {
   }
 });
 
-app.get('/api/shipments/:id', authenticateToken, requireStaff, (req, res) => {
+app.get('/api/shipments/:id', authenticateToken, requireStaff, async (req, res) => {
   try {
-    const shipment = db.findById('shipments', req.params.id);
+    let shipment = db.findById('shipments', req.params.id);
+    if (!shipment) {
+      const cloudData = await findShipmentInCloud(req.params.id);
+      if (cloudData && cloudData.shipment) {
+        shipment = cloudData.shipment;
+        try {
+          db.insert('shipments', shipment);
+          if (Array.isArray(cloudData.history)) {
+            for (const h of cloudData.history) db.insert('tracking_history', h);
+          }
+        } catch {}
+      }
+    }
+
     if (!shipment) {
       return res.status(404).json({ error: 'Expédition non trouvée' });
     }
@@ -575,9 +636,9 @@ app.get('/api/shipments/:id', authenticateToken, requireStaff, (req, res) => {
 
     const enrichedShipment = {
       ...shipment,
-      sender_city_name: sc ? sc.name : 'Inconnu',
+      sender_city_name: sc ? sc.name : (shipment.sender_city_name || 'Inconnu'),
       sender_postal: sc ? sc.code_postal : '',
-      receiver_city_name: rc ? rc.name : 'Inconnu',
+      receiver_city_name: rc ? rc.name : (shipment.receiver_city_name || 'Inconnu'),
       receiver_postal: rc ? rc.code_postal : '',
       created_by_name: u ? u.full_name : 'Staff'
     };
@@ -599,7 +660,7 @@ app.get('/api/shipments/:id', authenticateToken, requireStaff, (req, res) => {
   }
 });
 
-app.post('/api/shipments', authenticateToken, requireStaff, (req, res) => {
+app.post('/api/shipments', authenticateToken, requireStaff, async (req, res) => {
   try {
     const {
       sender_name, sender_phone, sender_email, sender_address, sender_city_id,
@@ -625,6 +686,9 @@ app.post('/api/shipments', authenticateToken, requireStaff, (req, res) => {
     const estimatedDelivery = new Date();
     estimatedDelivery.setDate(estimatedDelivery.getDate() + daysToDeliver);
 
+    const senderCity = db.findById('cities', sender_city_id);
+    const receiverCity = db.findById('cities', receiver_city_id);
+
     const newShipment = db.insert('shipments', {
       tracking_number: trackingNumber,
       sender_name,
@@ -632,11 +696,13 @@ app.post('/api/shipments', authenticateToken, requireStaff, (req, res) => {
       sender_email: sender_email || null,
       sender_address,
       sender_city_id: Number(sender_city_id),
+      sender_city_name: senderCity ? senderCity.name : 'France',
       receiver_name,
       receiver_phone,
       receiver_email: receiver_email || null,
       receiver_address,
       receiver_city_id: Number(receiver_city_id),
+      receiver_city_name: receiverCity ? receiverCity.name : 'France',
       package_description: package_description || null,
       weight: Number(weight || 0),
       dimensions: dimensions || null,
@@ -649,9 +715,7 @@ app.post('/api/shipments', authenticateToken, requireStaff, (req, res) => {
       created_by: req.user.id
     });
 
-    const senderCity = db.findById('cities', sender_city_id);
-
-    db.insert('tracking_history', {
+    const firstHistoryEvent = db.insert('tracking_history', {
       shipment_id: newShipment.id,
       status: 'en_attente',
       location: senderCity ? senderCity.name : 'France',
@@ -659,17 +723,25 @@ app.post('/api/shipments', authenticateToken, requireStaff, (req, res) => {
       updated_by: req.user.id
     });
 
+    // ☁️ Sauvegarde persistante dans le cloud GitHub
+    try {
+      await saveShipmentToCloud(newShipment, [firstHistoryEvent]);
+    } catch (e) {
+      console.error('Erreur saveShipmentToCloud:', e);
+    }
+
     res.status(201).json({
       message: 'Expédition créée avec succès',
       tracking_number: trackingNumber,
       id: newShipment.id
     });
   } catch (err) {
+    console.error('Erreur create shipment:', err);
     res.status(500).json({ error: 'Erreur lors de la création de l\'expédition' });
   }
 });
 
-app.put('/api/shipments/:id/status', authenticateToken, requireStaff, (req, res) => {
+app.put('/api/shipments/:id/status', authenticateToken, requireStaff, async (req, res) => {
   try {
     const { status, location, description } = req.body;
 
@@ -677,7 +749,18 @@ app.put('/api/shipments/:id/status', authenticateToken, requireStaff, (req, res)
       return res.status(400).json({ error: 'Le statut est requis' });
     }
 
-    const shipment = db.findById('shipments', req.params.id);
+    let shipment = db.findById('shipments', req.params.id);
+    if (!shipment) {
+      const allCloud = await getAllCloudShipments();
+      const match = allCloud.find(c => Number(c.shipment.id) === Number(req.params.id) || c.shipment.tracking_number === req.params.id);
+      if (match) {
+        shipment = match.shipment;
+        try {
+          db.insert('shipments', shipment);
+        } catch {}
+      }
+    }
+
     if (!shipment) {
       return res.status(404).json({ error: 'Expédition non trouvée' });
     }
@@ -687,7 +770,8 @@ app.put('/api/shipments/:id/status', authenticateToken, requireStaff, (req, res)
       updates.actual_delivery = new Date().toISOString().split('T')[0];
     }
 
-    db.update('shipments', req.params.id, updates);
+    db.update('shipments', shipment.id, updates);
+    const updatedShipment = { ...shipment, ...updates };
 
     const statusLabels = {
       en_attente: 'En attente de collecte',
@@ -700,7 +784,7 @@ app.put('/api/shipments/:id/status', authenticateToken, requireStaff, (req, res)
       annule: 'Expédition annulée'
     };
 
-    db.insert('tracking_history', {
+    const newEvent = db.insert('tracking_history', {
       shipment_id: shipment.id,
       status,
       location: location || 'France',
@@ -708,8 +792,20 @@ app.put('/api/shipments/:id/status', authenticateToken, requireStaff, (req, res)
       updated_by: req.user.id
     });
 
+    const allHistory = db
+      .find('tracking_history', th => Number(th.shipment_id) === Number(shipment.id))
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    // ☁️ Synchronisation persistante du statut dans le Cloud GitHub
+    try {
+      await saveShipmentToCloud(updatedShipment, allHistory);
+    } catch (e) {
+      console.error('Erreur update cloud status:', e);
+    }
+
     res.json({ message: 'Statut mis à jour avec succès' });
   } catch (err) {
+    console.error('Erreur update status:', err);
     res.status(500).json({ error: 'Erreur serveur lors de la mise à jour' });
   }
 });
