@@ -72,14 +72,14 @@ export default function Shipments() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-gray-900">Gestion des Expéditions</h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <h1 className="text-2xl font-black text-white">Gestion des Expéditions</h1>
+          <p className="text-slate-400 text-sm mt-1">
             {pagination.total} expédition{pagination.total > 1 ? 's' : ''} au total en France
           </p>
         </div>
         <Link
-          to="/admin/expeditions/nouveau"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-900 hover:bg-blue-800 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm"
+          to="/backoffice-portal/expeditions/nouveau"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm"
         >
           <Plus className="h-4 w-4" />
           Nouvelle expédition
@@ -87,7 +87,7 @@ export default function Shipments() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-2xl border border-gray-100 flex flex-col md:flex-row gap-4 justify-between items-center">
+      <div className="bg-white p-4 rounded-2xl border border-gray-200 flex flex-col md:flex-row gap-4 justify-between items-center text-slate-900 shadow-sm">
         <form onSubmit={handleSearchSubmit} className="relative flex-1 w-full">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
@@ -95,7 +95,7 @@ export default function Shipments() {
             placeholder="Rechercher par N° suivi, expéditeur, destinataire..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-2.5 text-slate-900 bg-white font-medium border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
           />
         </form>
 
@@ -103,7 +103,7 @@ export default function Shipments() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-auto"
+            className="px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-slate-900 bg-white font-medium focus:outline-none focus:ring-2 focus:ring-sky-500 w-full md:w-auto"
           >
             <option value="">Tous les statuts</option>
             <option value="en_attente">En attente</option>
@@ -178,7 +178,7 @@ export default function Shipments() {
                     </td>
                     <td className="px-6 py-4 text-right space-x-2 whitespace-nowrap">
                       <Link
-                        to={`/admin/expeditions/${s.id}`}
+                        to={`/backoffice-portal/expeditions/${s.id}`}
                         className="inline-flex p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         title="Détails & mise à jour"
                       >

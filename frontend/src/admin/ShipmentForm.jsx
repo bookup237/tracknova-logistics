@@ -1,35 +1,215 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, Send, ArrowLeft } from 'lucide-react';
+import { Package, Send, ArrowLeft, MapPin, Search, ChevronDown, Check } from 'lucide-react';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
 
+const ALL_FRENCH_CITIES = [
+  { id: 1, name: 'Paris', code_postal: '75000', region: 'Île-de-France' },
+  { id: 2, name: 'Marseille', code_postal: '13000', region: 'Provence-Alpes-Côte d\'Azur' },
+  { id: 3, name: 'Lyon', code_postal: '69000', region: 'Auvergne-Rhône-Alpes' },
+  { id: 4, name: 'Toulouse', code_postal: '31000', region: 'Occitanie' },
+  { id: 5, name: 'Nice', code_postal: '06000', region: 'Provence-Alpes-Côte d\'Azur' },
+  { id: 6, name: 'Nantes', code_postal: '44000', region: 'Pays de la Loire' },
+  { id: 7, name: 'Montpellier', code_postal: '34000', region: 'Occitanie' },
+  { id: 8, name: 'Strasbourg', code_postal: '67000', region: 'Grand Est' },
+  { id: 9, name: 'Bordeaux', code_postal: '33000', region: 'Nouvelle-Aquitaine' },
+  { id: 10, name: 'Lille', code_postal: '59000', region: 'Hauts-de-France' },
+  { id: 11, name: 'Rennes', code_postal: '35000', region: 'Bretagne' },
+  { id: 12, name: 'Reims', code_postal: '51100', region: 'Grand Est' },
+  { id: 13, name: 'Saint-Étienne', code_postal: '42000', region: 'Auvergne-Rhône-Alpes' },
+  { id: 14, name: 'Toulon', code_postal: '83000', region: 'Provence-Alpes-Côte d\'Azur' },
+  { id: 15, name: 'Le Havre', code_postal: '76600', region: 'Normandie' },
+  { id: 16, name: 'Grenoble', code_postal: '38000', region: 'Auvergne-Rhône-Alpes' },
+  { id: 17, name: 'Dijon', code_postal: '21000', region: 'Bourgogne-Franche-Comté' },
+  { id: 18, name: 'Angers', code_postal: '49000', region: 'Pays de la Loire' },
+  { id: 19, name: 'Nîmes', code_postal: '30000', region: 'Occitanie' },
+  { id: 20, name: 'Villeurbanne', code_postal: '69100', region: 'Auvergne-Rhône-Alpes' },
+  { id: 21, name: 'Clermont-Ferrand', code_postal: '63000', region: 'Auvergne-Rhône-Alpes' },
+  { id: 22, name: 'Aix-en-Provence', code_postal: '13100', region: 'Provence-Alpes-Côte d\'Azur' },
+  { id: 23, name: 'Brest', code_postal: '29200', region: 'Bretagne' },
+  { id: 24, name: 'Tours', code_postal: '37000', region: 'Centre-Val de Loire' },
+  { id: 25, name: 'Amiens', code_postal: '80000', region: 'Hauts-de-France' },
+  { id: 26, name: 'Limoges', code_postal: '87000', region: 'Nouvelle-Aquitaine' },
+  { id: 27, name: 'Annecy', code_postal: '74000', region: 'Auvergne-Rhône-Alpes' },
+  { id: 28, name: 'Perpignan', code_postal: '66000', region: 'Occitanie' },
+  { id: 29, name: 'Boulogne-Billancourt', code_postal: '92100', region: 'Île-de-France' },
+  { id: 30, name: 'Metz', code_postal: '57000', region: 'Grand Est' },
+  { id: 31, name: 'Besançon', code_postal: '25000', region: 'Bourgogne-Franche-Comté' },
+  { id: 32, name: 'Orléans', code_postal: '45000', region: 'Centre-Val de Loire' },
+  { id: 33, name: 'Saint-Denis', code_postal: '93200', region: 'Île-de-France' },
+  { id: 34, name: 'Rouen', code_postal: '76000', region: 'Normandie' },
+  { id: 35, name: 'Argenteuil', code_postal: '95100', region: 'Île-de-France' },
+  { id: 36, name: 'Montreuil', code_postal: '93100', region: 'Île-de-France' },
+  { id: 37, name: 'Mulhouse', code_postal: '68100', region: 'Grand Est' },
+  { id: 38, name: 'Caen', code_postal: '14000', region: 'Normandie' },
+  { id: 39, name: 'Nancy', code_postal: '54000', region: 'Grand Est' },
+  { id: 40, name: 'Tourcoing', code_postal: '59200', region: 'Hauts-de-France' },
+  { id: 41, name: 'Roubaix', code_postal: '59100', region: 'Hauts-de-France' },
+  { id: 42, name: 'Nanterre', code_postal: '92000', region: 'Île-de-France' },
+  { id: 43, name: 'Vitry-sur-Seine', code_postal: '94400', region: 'Île-de-France' },
+  { id: 44, name: 'Avignon', code_postal: '84000', region: 'Provence-Alpes-Côte d\'Azur' },
+  { id: 45, name: 'Créteil', code_postal: '94000', region: 'Île-de-France' },
+  { id: 46, name: 'Dunkerque', code_postal: '59140', region: 'Hauts-de-France' },
+  { id: 47, name: 'Poitiers', code_postal: '86000', region: 'Nouvelle-Aquitaine' },
+  { id: 48, name: 'Aubervilliers', code_postal: '93300', region: 'Île-de-France' },
+  { id: 49, name: 'Calais', code_postal: '62100', region: 'Hauts-de-France' },
+  { id: 50, name: 'Cannes', code_postal: '06400', region: 'Provence-Alpes-Côte d\'Azur' },
+];
+
+const POPULAR_QUICK_CITIES = [
+  { id: 1, name: 'Paris', code: '75' },
+  { id: 3, name: 'Lyon', code: '69' },
+  { id: 2, name: 'Marseille', code: '13' },
+  { id: 4, name: 'Toulouse', code: '31' },
+  { id: 9, name: 'Bordeaux', code: '33' },
+  { id: 6, name: 'Nantes', code: '44' },
+  { id: 10, name: 'Lille', code: '59' },
+  { id: 8, name: 'Strasbourg', code: '67' },
+  { id: 5, name: 'Nice', code: '06' },
+];
+
+function CitySelector({ label, selectedId, onSelect, allCities }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const wrapperRef = useRef(null);
+
+  const selectedCity = allCities.find(c => Number(c.id) === Number(selectedId)) || allCities[0];
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const filtered = searchTerm.trim() === ''
+    ? allCities.slice(0, 15)
+    : allCities.filter(c => {
+        const q = searchTerm.toLowerCase();
+        return (
+          c.name.toLowerCase().includes(q) ||
+          c.code_postal.includes(q) ||
+          (c.region && c.region.toLowerCase().includes(q))
+        );
+      }).slice(0, 15);
+
+  return (
+    <div className="space-y-1.5 relative" ref={wrapperRef}>
+      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">{label} *</label>
+
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full px-3.5 py-2.5 text-left bg-white border-2 border-slate-300 hover:border-sky-500 rounded-xl flex items-center justify-between text-slate-900 font-bold shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-sky-500"
+        >
+          <div className="flex items-center gap-2 truncate">
+            <MapPin className="h-4 w-4 text-sky-600 flex-shrink-0" />
+            <span className="text-slate-900 font-bold text-sm">
+              {selectedCity ? `${selectedCity.name} (${selectedCity.code_postal})` : 'Sélectionnez la ville'}
+            </span>
+          </div>
+          <ChevronDown className={`h-4 w-4 text-slate-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+
+        {isOpen && (
+          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 overflow-hidden">
+            <div className="p-2 border-b border-slate-100 bg-slate-50 flex items-center gap-2">
+              <Search className="h-4 w-4 text-slate-400 ml-1" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Filtrer par nom ou code postal..."
+                autoFocus
+                className="w-full px-2 py-1.5 text-xs text-slate-900 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-sky-500 font-medium"
+              />
+            </div>
+
+            <div className="max-h-48 overflow-y-auto divide-y divide-slate-100">
+              {filtered.map(city => {
+                const isSelected = Number(city.id) === Number(selectedId);
+                return (
+                  <button
+                    key={city.id}
+                    type="button"
+                    onClick={() => {
+                      onSelect(city.id);
+                      setIsOpen(false);
+                      setSearchTerm('');
+                    }}
+                    className={`w-full px-3 py-2 text-left text-xs flex items-center justify-between hover:bg-sky-50 transition-colors ${
+                      isSelected ? 'bg-sky-100/70 font-bold text-sky-900' : 'text-slate-800'
+                    }`}
+                  >
+                    <div>
+                      <span className="font-bold text-slate-900">{city.name}</span>
+                      <span className="text-slate-500 text-[11px] ml-1.5">({city.code_postal})</span>
+                    </div>
+                    {isSelected && <Check className="h-4 w-4 text-sky-600" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Raccourcis métropoles */}
+      <div className="flex flex-wrap items-center gap-1 pt-1">
+        {POPULAR_QUICK_CITIES.map(quick => (
+          <button
+            key={quick.id}
+            type="button"
+            onClick={() => onSelect(quick.id)}
+            className={`text-[11px] px-2 py-0.5 rounded font-semibold transition-colors ${
+              Number(selectedId) === Number(quick.id)
+                ? 'bg-sky-600 text-white'
+                : 'bg-slate-100 text-slate-700 hover:bg-sky-100 hover:text-sky-800 border border-slate-200'
+            }`}
+          >
+            {quick.name} ({quick.code})
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function ShipmentForm() {
   const navigate = useNavigate();
-  const [cities, setCities] = useState([]);
+  const [cities, setCities] = useState(ALL_FRENCH_CITIES);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     sender_name: '',
     sender_phone: '',
     sender_email: '',
     sender_address: '',
-    sender_city_id: '',
+    sender_city_id: 1, // Paris par défaut
     receiver_name: '',
     receiver_phone: '',
     receiver_email: '',
     receiver_address: '',
-    receiver_city_id: '',
+    receiver_city_id: 3, // Lyon par défaut
     package_description: '',
-    weight: '1',
-    dimensions: '',
-    package_type: 'standard',
+    weight: '2.5',
+    dimensions: '30x20x15',
+    package_type: 'express',
     notes: '',
   });
 
   useEffect(() => {
     API.get('/public/cities')
-      .then(res => setCities(res.data))
-      .catch(() => toast.error('Erreur lors du chargement des villes'));
+      .then(res => {
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          setCities(res.data);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const handleChange = (e) => {
@@ -42,7 +222,7 @@ export default function ShipmentForm() {
     try {
       const res = await API.post('/shipments', formData);
       toast.success(`Colis créé avec succès ! N° ${res.data.tracking_number}`);
-      navigate('/admin/expeditions');
+      navigate('/backoffice-portal/expeditions');
     } catch (err) {
       toast.error(err.response?.data?.error || 'Erreur lors de la création');
     } finally {
@@ -51,41 +231,42 @@ export default function ShipmentForm() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6 text-slate-900">
       <div className="flex items-center gap-4">
         <button
-          onClick={() => navigate('/admin/expeditions')}
-          className="p-2 hover:bg-gray-200 rounded-xl transition-colors"
+          onClick={() => navigate('/backoffice-portal/expeditions')}
+          className="p-2 hover:bg-slate-800 text-slate-300 rounded-xl transition-colors cursor-pointer"
         >
-          <ArrowLeft className="h-5 w-5 text-gray-600" />
+          <ArrowLeft className="h-5 w-5" />
         </button>
         <div>
-          <h1 className="text-2xl font-extrabold text-gray-900">Nouvelle Expédition</h1>
-          <p className="text-gray-500 text-sm">Enregistrez un nouveau colis pour le réseau France</p>
+          <h1 className="text-2xl font-black text-white">Nouvelle Expédition</h1>
+          <p className="text-slate-400 text-sm">Enregistrez un nouveau colis pour le réseau France</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Expéditeur */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-4">
-          <h2 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-3 flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-900 text-xs flex items-center justify-center font-bold">1</span>
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-md space-y-4">
+          <h2 className="text-lg font-black text-slate-900 border-b border-slate-200 pb-3 flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-sky-100 text-sky-800 text-xs flex items-center justify-center font-bold">1</span>
             Informations Expéditeur (Départ France)
           </h2>
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Nom / Société *</label>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Nom / Société *</label>
               <input
                 type="text"
                 name="sender_name"
                 value={formData.sender_name}
                 onChange={handleChange}
                 required
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ex : Boutique Parisienne"
+                className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Téléphone *</label>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Téléphone *</label>
               <input
                 type="text"
                 name="sender_phone"
@@ -93,36 +274,30 @@ export default function ShipmentForm() {
                 onChange={handleChange}
                 required
                 placeholder="06 12 34 56 78"
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Email</label>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Email</label>
               <input
                 type="email"
                 name="sender_email"
                 value={formData.sender_email}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="contact@societe.fr"
+                className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Ville de départ (France) *</label>
-              <select
-                name="sender_city_id"
-                value={formData.sender_city_id}
-                onChange={handleChange}
-                required
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Sélectionnez la ville</option>
-                {cities.map(c => (
-                  <option key={c.id} value={c.id}>{c.name} ({c.code_postal}) - {c.region}</option>
-                ))}
-              </select>
-            </div>
+            
+            <CitySelector
+              label="Ville de départ (France)"
+              selectedId={formData.sender_city_id}
+              onSelect={(id) => setFormData({ ...formData, sender_city_id: id })}
+              allCities={cities}
+            />
+
             <div className="md:col-span-2">
-              <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Adresse complète *</label>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Adresse complète *</label>
               <input
                 type="text"
                 name="sender_address"
@@ -130,32 +305,33 @@ export default function ShipmentForm() {
                 onChange={handleChange}
                 required
                 placeholder="15 Rue de Paris"
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
             </div>
           </div>
         </div>
 
         {/* Destinataire */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-4">
-          <h2 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-3 flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-900 text-xs flex items-center justify-center font-bold">2</span>
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-md space-y-4">
+          <h2 className="text-lg font-black text-slate-900 border-b border-slate-200 pb-3 flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-sky-100 text-sky-800 text-xs flex items-center justify-center font-bold">2</span>
             Informations Destinataire (Arrivée France)
           </h2>
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Nom du destinataire *</label>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Nom du destinataire *</label>
               <input
                 type="text"
                 name="receiver_name"
                 value={formData.receiver_name}
                 onChange={handleChange}
                 required
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ex : M. Paul Bernard"
+                className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Téléphone *</label>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Téléphone *</label>
               <input
                 type="text"
                 name="receiver_phone"
@@ -163,36 +339,30 @@ export default function ShipmentForm() {
                 onChange={handleChange}
                 required
                 placeholder="07 98 76 54 32"
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Email</label>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Email</label>
               <input
                 type="email"
                 name="receiver_email"
                 value={formData.receiver_email}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="destinataire@email.fr"
+                className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Ville d'arrivée (France) *</label>
-              <select
-                name="receiver_city_id"
-                value={formData.receiver_city_id}
-                onChange={handleChange}
-                required
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Sélectionnez la ville</option>
-                {cities.map(c => (
-                  <option key={c.id} value={c.id}>{c.name} ({c.code_postal}) - {c.region}</option>
-                ))}
-              </select>
-            </div>
+
+            <CitySelector
+              label="Ville d'arrivée (France)"
+              selectedId={formData.receiver_city_id}
+              onSelect={(id) => setFormData({ ...formData, receiver_city_id: id })}
+              allCities={cities}
+            />
+
             <div className="md:col-span-2">
-              <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Adresse complète *</label>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Adresse complète *</label>
               <input
                 type="text"
                 name="receiver_address"
@@ -200,35 +370,35 @@ export default function ShipmentForm() {
                 onChange={handleChange}
                 required
                 placeholder="24 Avenue de Lyon"
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
             </div>
           </div>
         </div>
 
         {/* Détails du colis */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-4">
-          <h2 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-3 flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-900 text-xs flex items-center justify-center font-bold">3</span>
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-md space-y-4">
+          <h2 className="text-lg font-black text-slate-900 border-b border-slate-200 pb-3 flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-sky-100 text-sky-800 text-xs flex items-center justify-center font-bold">3</span>
             Caractéristiques du Colis
           </h2>
           <div className="grid md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Type d'envoi</label>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Formule de transport</label>
               <select
                 name="package_type"
                 value={formData.package_type}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3.5 py-2.5 text-sm font-bold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               >
-                <option value="standard">Standard (3-5 jours)</option>
-                <option value="express">Express 24h</option>
-                <option value="fragile">Fragile</option>
-                <option value="volumineux">Volumineux</option>
+                <option value="standard" className="text-slate-900 bg-white">Standard (48h - 72h)</option>
+                <option value="express" className="text-slate-900 bg-white">Express 24h prioritaire</option>
+                <option value="fragile" className="text-slate-900 bg-white">Fragile & Sécurisé</option>
+                <option value="volumineux" className="text-slate-900 bg-white">Fret Volumineux (&gt; 30kg)</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Poids (kg) *</label>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Poids (kg) *</label>
               <input
                 type="number"
                 step="0.1"
@@ -237,58 +407,59 @@ export default function ShipmentForm() {
                 value={formData.weight}
                 onChange={handleChange}
                 required
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Dimensions (L×l×H cm)</label>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Dimensions (L×l×H cm)</label>
               <input
                 type="text"
                 name="dimensions"
                 placeholder="30x20x15"
                 value={formData.dimensions}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
             </div>
             <div className="md:col-span-3">
-              <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Description du contenu</label>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Description du contenu</label>
               <input
                 type="text"
                 name="package_description"
-                placeholder="Documents administratifs, vêtements..."
+                placeholder="Documents administratifs, vêtements, pièces techniques..."
                 value={formData.package_description}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
               />
             </div>
             <div className="md:col-span-3">
-              <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Notes internes (instructions)</label>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Notes internes (instructions)</label>
               <textarea
                 name="notes"
                 rows="2"
                 value={formData.notes}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                placeholder="Consignes de livraison, code porte, étage..."
+                className="w-full px-3.5 py-2.5 text-sm font-semibold text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm resize-none"
               ></textarea>
             </div>
           </div>
         </div>
 
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-end gap-4 pt-2">
           <button
             type="button"
-            onClick={() => navigate('/admin/expeditions')}
-            className="px-6 py-3 border border-gray-200 text-gray-600 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+            onClick={() => navigate('/backoffice-portal/expeditions')}
+            className="px-6 py-3 border border-slate-700 text-slate-300 font-bold rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
           >
             Annuler
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-8 py-3 bg-blue-900 hover:bg-blue-800 text-white font-semibold rounded-xl transition-colors shadow-md disabled:opacity-50"
+            className="px-8 py-3.5 bg-sky-600 hover:bg-sky-500 text-white font-black text-sm rounded-xl transition-colors shadow-lg shadow-sky-600/30 disabled:opacity-50 cursor-pointer"
           >
-            {loading ? 'Création en cours...' : 'Créer l\'expédition'}
+            {loading ? 'Création en cours...' : 'Créer et générer le N° de suivi'}
           </button>
         </div>
       </form>

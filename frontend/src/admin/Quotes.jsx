@@ -35,8 +35,8 @@ export default function Quotes() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-extrabold text-gray-900">Demandes de Devis</h1>
-        <p className="text-gray-500 text-sm mt-1">Estimations et devis soumis par les clients pour le territoire français</p>
+        <h1 className="text-2xl font-black text-white">Demandes de Devis</h1>
+        <p className="text-slate-400 text-sm mt-1">Estimations et devis soumis par les clients pour le territoire français</p>
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">

@@ -81,7 +81,7 @@ export default function ShipmentDetail() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => navigate('/admin/expeditions')}
+            onClick={() => navigate('/backoffice-portal/expeditions')}
             className="p-2 hover:bg-gray-200 rounded-xl transition-colors"
           >
             <ArrowLeft className="h-5 w-5 text-gray-600" />
@@ -187,7 +187,7 @@ export default function ShipmentDetail() {
                     value={newStatus}
                     onChange={(e) => setNewStatus(e.target.value)}
                     required
-                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm text-slate-900 bg-white font-medium focus:outline-none focus:ring-2 focus:ring-sky-500"
                   >
                     <option value="en_attente">En attente</option>
                     <option value="collecte">Collecté</option>
@@ -207,7 +207,7 @@ export default function ShipmentDetail() {
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     placeholder="Ex: Hub Régional Paris Sud, Lyon..."
-                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm text-slate-900 bg-white font-medium focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
 
@@ -218,7 +218,7 @@ export default function ShipmentDetail() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Ex: Le colis a quitté le centre logistique..."
-                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm text-slate-900 bg-white font-medium focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
               </div>

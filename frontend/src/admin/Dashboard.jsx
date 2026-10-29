@@ -49,12 +49,12 @@ export default function Dashboard() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold text-gray-900">Tableau de bord</h1>
-          <p className="text-gray-500 text-sm mt-1">Vue d'ensemble de vos activités</p>
+          <h1 className="text-2xl font-black text-white">Tableau de bord</h1>
+          <p className="text-slate-400 text-sm mt-1">Vue d'ensemble de vos activités logistiques</p>
         </div>
         <Link
-          to="/admin/expeditions/nouveau"
-          className="px-5 py-2.5 bg-blue-900 text-white rounded-xl text-sm font-semibold hover:bg-blue-800 transition-colors flex items-center gap-2"
+          to="/backoffice-portal/expeditions/nouveau"
+          className="px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-sm font-semibold transition-colors flex items-center gap-2 shadow-sm"
         >
           <Package className="h-4 w-4" />
           Nouvelle expédition
@@ -120,7 +120,7 @@ export default function Dashboard() {
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {recentShipments.slice(0, 8).map((s) => (
-                  <tr key={s.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/admin/expeditions/${s.id}`}>
+                  <tr key={s.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/backoffice-portal/expeditions/${s.id}`}>
                     <td className="px-6 py-3">
                       <span className="font-mono text-sm font-semibold text-blue-900">{s.tracking_number}</span>
                     </td>

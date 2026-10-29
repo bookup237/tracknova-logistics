@@ -49,12 +49,10 @@ export default function AdminLayout() {
         {/* Logo Backoffice */}
         <div className="px-6 py-6 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-white font-bold text-sm">
-              N
-            </div>
+            <img src="/logo.jpg" alt="TrackNova" className="h-9 w-auto rounded-md object-contain bg-white p-0.5" />
             <div>
-              <span className="text-base font-black text-white">NAVOREX</span>
-              <span className="block text-[10px] text-orange-400 font-bold -mt-0.5 tracking-wider uppercase">BACKOFFICE</span>
+              <span className="text-base font-black text-white leading-none">TrackNova</span>
+              <span className="block text-[10px] text-sky-400 font-bold tracking-wider uppercase mt-0.5">BACKOFFICE PRO</span>
             </div>
           </div>
         </div>
