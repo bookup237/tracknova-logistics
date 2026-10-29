@@ -57,7 +57,13 @@ export default function Tracking() {
     searchShipment();
   };
 
-  const currentStatus = result ? statusConfig[result.shipment.status] : null;
+  const currentStatus = result ? (statusConfig[result.shipment.status] || {
+    label: result.shipment.status,
+    icon: <Clock className="h-5 w-5" />,
+    color: 'text-sky-600',
+    bg: 'bg-sky-100',
+    step: 1
+  }) : null;
   const steps = ['en_attente', 'collecte', 'en_transit', 'au_hub', 'en_livraison', 'livre'];
 
   return (

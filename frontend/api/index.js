@@ -187,44 +187,45 @@ app.post('/api/public/quote', (req, res) => {
 });
 
 // ─────────────────────────────────────────────
-// ROUTE DE SUIVI DE COLIS (avec fallback Cloud synchronisé)
+// ROUTE DE SUIVI DE COLIS (avec priorité temps réel Cloud)
 // ─────────────────────────────────────────────
 app.get('/api/tracking/:trackingNumber', async (req, res) => {
   try {
     const { trackingNumber } = req.params;
     const cleanNumber = (trackingNumber || '').trim().toUpperCase();
 
-    let shipment = db.findOne('shipments', s => s.tracking_number && s.tracking_number.toUpperCase() === cleanNumber);
+    let shipment = null;
     let history = [];
 
-    // Si pas trouvé dans la mémoire locale du conteneur Vercel, interroger le Cloud persistant
-    if (!shipment) {
-      try {
-        const cloudData = await findShipmentInCloud(cleanNumber);
-        if (cloudData && cloudData.shipment) {
-          shipment = cloudData.shipment;
-          history = Array.isArray(cloudData.history) ? cloudData.history : [];
+    // ☁️ 1. Vérifier en priorité dans le Cloud persistant pour obtenir le dernier statut en temps réel
+    try {
+      const cloudData = await findShipmentInCloud(cleanNumber);
+      if (cloudData && cloudData.shipment) {
+        shipment = cloudData.shipment;
+        history = Array.isArray(cloudData.history) ? cloudData.history : [];
 
-          // Enregistrer en cache local
-          try {
-            const already = db.findOne('shipments', s => s.tracking_number === shipment.tracking_number);
-            if (!already) {
-              db.insert('shipments', shipment);
-              for (const h of history) {
-                db.insert('tracking_history', h);
-              }
-            }
-          } catch (e) {
-            console.warn('Cache local warning:', e.message);
+        // Synchroniser le cache local du conteneur
+        try {
+          const local = db.findOne('shipments', s => s.tracking_number && s.tracking_number.toUpperCase() === cleanNumber);
+          if (local) {
+            db.update('shipments', local.id, shipment);
+          } else {
+            db.insert('shipments', shipment);
           }
-        }
-      } catch (errCloud) {
-        console.error('Erreur recherche Cloud:', errCloud);
+        } catch (e) {}
       }
-    } else {
-      history = db
-        .find('tracking_history', th => Number(th.shipment_id) === Number(shipment.id))
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    } catch (errCloud) {
+      console.warn('Recherche Cloud warning:', errCloud.message);
+    }
+
+    // 2. Si pas dans le cloud (ex: colis de démonstration seedés comme FR-PARIS750), chercher dans db locale
+    if (!shipment) {
+      shipment = db.findOne('shipments', s => s.tracking_number && s.tracking_number.toUpperCase() === cleanNumber);
+      if (shipment) {
+        history = db
+          .find('tracking_history', th => Number(th.shipment_id) === Number(shipment.id))
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      }
     }
 
     if (!shipment) {
@@ -751,13 +752,29 @@ app.put('/api/shipments/:id/status', authenticateToken, requireStaff, async (req
 
     let shipment = db.findById('shipments', req.params.id);
     if (!shipment) {
+      shipment = db.findOne('shipments', s => s.tracking_number === req.params.id);
+    }
+
+    // Si pas en local, chercher dans le cloud
+    let cloudHistory = [];
+    if (!shipment) {
       const allCloud = await getAllCloudShipments();
-      const match = allCloud.find(c => Number(c.shipment.id) === Number(req.params.id) || c.shipment.tracking_number === req.params.id);
+      const match = allCloud.find(c => 
+        Number(c.shipment.id) === Number(req.params.id) || 
+        c.shipment.tracking_number === req.params.id ||
+        String(c.shipment.id) === String(req.params.id)
+      );
       if (match) {
         shipment = match.shipment;
+        cloudHistory = Array.isArray(match.history) ? match.history : [];
         try {
           db.insert('shipments', shipment);
         } catch {}
+      }
+    } else {
+      const cloudData = await findShipmentInCloud(shipment.tracking_number);
+      if (cloudData && Array.isArray(cloudData.history)) {
+        cloudHistory = cloudData.history;
       }
     }
 
@@ -774,36 +791,47 @@ app.put('/api/shipments/:id/status', authenticateToken, requireStaff, async (req
     const updatedShipment = { ...shipment, ...updates };
 
     const statusLabels = {
-      en_attente: 'En attente de collecte',
-      collecte: 'Colis collecté',
-      en_transit: 'En transit',
-      au_hub: 'Arrivé au centre de tri',
-      en_livraison: 'En cours de livraison',
-      livre: 'Colis livré',
-      retourne: 'Colis retourné à l\'expéditeur',
-      annule: 'Expédition annulée'
+      en_attente: "Colis enregistré, en attente d'expédition",
+      collecte: "Colis collecté et pris en charge par le réseau TrackNova",
+      en_transit: "Colis en cours d'acheminement sur le réseau national",
+      au_hub: "Arrivé sur plateforme logistique de tri",
+      en_livraison: "Colis pris en charge par le livreur, livraison en cours",
+      livre: "Colis livré avec succès et remis au destinataire",
+      retourne: "Colis retourné à l'expéditeur",
+      annule: "Expédition annulée"
     };
 
-    const newEvent = db.insert('tracking_history', {
+    const newEvent = {
+      id: Date.now(),
       shipment_id: shipment.id,
       status,
-      location: location || 'France',
+      location: location || (shipment.sender_city_name || 'France'),
       description: description || statusLabels[status] || status,
+      created_at: new Date().toISOString(),
       updated_by: req.user.id
-    });
+    };
 
-    const allHistory = db
-      .find('tracking_history', th => Number(th.shipment_id) === Number(shipment.id))
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    db.insert('tracking_history', newEvent);
+
+    // Combiner l'historique complet pour la persistance Cloud
+    const combinedHistory = [
+      newEvent,
+      ...cloudHistory.filter(h => h.id !== newEvent.id)
+    ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
     // ☁️ Synchronisation persistante du statut dans le Cloud GitHub
     try {
-      await saveShipmentToCloud(updatedShipment, allHistory);
+      await saveShipmentToCloud(updatedShipment, combinedHistory);
     } catch (e) {
       console.error('Erreur update cloud status:', e);
     }
 
-    res.json({ message: 'Statut mis à jour avec succès' });
+    res.json({
+      message: 'Statut mis à jour avec succès',
+      status: updatedShipment.status,
+      shipment: updatedShipment,
+      event: newEvent
+    });
   } catch (err) {
     console.error('Erreur update status:', err);
     res.status(500).json({ error: 'Erreur serveur lors de la mise à jour' });
