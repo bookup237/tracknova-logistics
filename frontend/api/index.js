@@ -1,5 +1,5 @@
-const app = require('./backend/server');
+import server from './backend/server.js';
 
-module.exports = (req, res) => {
-  return app(req, res);
-};
+export default function handler(req, res) {
+  return server(req, res);
+}
