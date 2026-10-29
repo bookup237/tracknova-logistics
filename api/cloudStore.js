@@ -13,12 +13,14 @@ export async function saveShipmentToCloud(shipment, history = []) {
       updated_at: new Date().toISOString()
     };
 
-    // Vérifier si un enregistrement existe déjà
-    const listRes = await fetch(`https://api.github.com/repos/${REPO}/issues?labels=shipment&state=all&per_page=100`, {
+    // Vérifier si un enregistrement existe déjà avec cache-buster
+    const listRes = await fetch(`https://api.github.com/repos/${REPO}/issues?labels=shipment&state=all&per_page=100&_t=${Date.now()}`, {
       headers: {
         'Authorization': `Bearer ${GITHUB_TOKEN}`,
         'User-Agent': 'TrackNova-Backend',
-        'Accept': 'application/vnd.github.v3+json'
+        'Accept': 'application/vnd.github.v3+json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
       }
     });
 
@@ -69,11 +71,13 @@ export async function findShipmentInCloud(trackingNumber) {
     const cleanNumber = (trackingNumber || '').trim().toUpperCase();
     if (!cleanNumber) return null;
 
-    const res = await fetch(`https://api.github.com/repos/${REPO}/issues?labels=shipment&state=all&per_page=100`, {
+    const res = await fetch(`https://api.github.com/repos/${REPO}/issues?labels=shipment&state=all&per_page=100&_t=${Date.now()}`, {
       headers: {
         'Authorization': `Bearer ${GITHUB_TOKEN}`,
         'User-Agent': 'TrackNova-Backend',
-        'Accept': 'application/vnd.github.v3+json'
+        'Accept': 'application/vnd.github.v3+json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
       }
     });
 
@@ -94,11 +98,13 @@ export async function findShipmentInCloud(trackingNumber) {
 
 export async function getAllCloudShipments() {
   try {
-    const res = await fetch(`https://api.github.com/repos/${REPO}/issues?labels=shipment&state=all&per_page=100`, {
+    const res = await fetch(`https://api.github.com/repos/${REPO}/issues?labels=shipment&state=all&per_page=100&_t=${Date.now()}`, {
       headers: {
         'Authorization': `Bearer ${GITHUB_TOKEN}`,
         'User-Agent': 'TrackNova-Backend',
-        'Accept': 'application/vnd.github.v3+json'
+        'Accept': 'application/vnd.github.v3+json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
       }
     });
 
