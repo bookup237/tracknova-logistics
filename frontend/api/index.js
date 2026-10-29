@@ -1,5 +1,7 @@
-import server from './backend/server.js';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const app = require('./backend/server');
 
 export default function handler(req, res) {
-  return server(req, res);
+  return app(req, res);
 }
