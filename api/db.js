@@ -1,39 +1,23 @@
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import { fileURLToPath } from 'url';
+import initialData from './initialData.js';
 
-// Sur Vercel (serverless lambda), seul /tmp est accessible en écriture
 const isVercel = Boolean(process.env.VERCEL);
-const sourceDbPath = path.join(__dirname, 'database.json');
-const targetDbPath = isVercel ? path.join(os.tmpdir(), 'database.json') : sourceDbPath;
+let targetDbPath;
 
 if (isVercel) {
+  targetDbPath = path.join(os.tmpdir(), 'database.json');
+} else {
   try {
-    if (!fs.existsSync(targetDbPath) && fs.existsSync(sourceDbPath)) {
-      fs.copyFileSync(sourceDbPath, targetDbPath);
-    }
-  } catch (err) {
-    console.error('Erreur copie DB vers /tmp:', err);
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    targetDbPath = path.join(__dirname, 'database.json');
+  } catch {
+    targetDbPath = path.join(os.tmpdir(), 'database.json');
   }
 }
-
-// Structure initiale
-const initialData = {
-  users: [],
-  cities: [],
-  shipments: [],
-  tracking_history: [],
-  contact_messages: [],
-  quote_requests: [],
-  counters: {
-    users: 0,
-    cities: 0,
-    shipments: 0,
-    tracking_history: 0,
-    contact_messages: 0,
-    quote_requests: 0,
-  }
-};
 
 class JSONDatabase {
   constructor(filePath) {
@@ -45,17 +29,19 @@ class JSONDatabase {
     try {
       if (fs.existsSync(this.filePath)) {
         const raw = fs.readFileSync(this.filePath, 'utf8');
-        return JSON.parse(raw);
-      }
-      if (fs.existsSync(sourceDbPath)) {
-        const raw = fs.readFileSync(sourceDbPath, 'utf8');
-        return JSON.parse(raw);
+        const parsed = JSON.parse(raw);
+        if (parsed && Array.isArray(parsed.cities) && parsed.cities.length > 0) {
+          return parsed;
+        }
       }
     } catch (e) {
-      console.error('Erreur lecture DB, réinitialisation...', e);
+      console.error('Erreur lecture DB, réinitialisation avec initialData...', e);
     }
-    this.save(initialData);
-    return JSON.parse(JSON.stringify(initialData));
+
+    // Initialisation depuis initialData
+    const cloned = JSON.parse(JSON.stringify(initialData));
+    this.save(cloned);
+    return cloned;
   }
 
   save(data = this.data) {
@@ -78,7 +64,7 @@ class JSONDatabase {
     const list = this.getCollection(table);
     if (!this.data.counters) this.data.counters = {};
     if (!this.data.counters[table]) this.data.counters[table] = list.length;
-    
+
     this.data.counters[table]++;
     const newItem = {
       id: this.data.counters[table],
@@ -126,4 +112,4 @@ class JSONDatabase {
 }
 
 const db = new JSONDatabase(targetDbPath);
-module.exports = db;
+export default db;

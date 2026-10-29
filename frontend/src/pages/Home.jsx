@@ -12,6 +12,8 @@ export default function Home() {
     e.preventDefault();
     if (trackingNumber.trim()) {
       navigate(`/suivi?numero=${trackingNumber.trim()}`);
+    } else {
+      navigate('/suivi?numero=FR-PARIS750');
     }
   };
 
@@ -65,6 +67,19 @@ export default function Home() {
                     Suivre le colis
                   </button>
                 </form>
+                <div className="flex flex-wrap items-center gap-2 pt-2 px-1 text-xs text-slate-500">
+                  <span className="font-medium">Numéros de test :</span>
+                  {['FR-PARIS750', 'FR-LYON002', 'FR-MARSEILLE101'].map(demo => (
+                    <button
+                      key={demo}
+                      type="button"
+                      onClick={() => navigate(`/suivi?numero=${demo}`)}
+                      className="px-2 py-0.5 bg-slate-200 hover:bg-sky-100 hover:text-sky-700 text-slate-700 rounded font-mono font-semibold transition-colors"
+                    >
+                      {demo}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Engagements simples et clairs */}
@@ -149,8 +164,8 @@ export default function Home() {
                   </div>
 
                   <Link
-                    to="/devis"
-                    className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg transition-colors"
+                    to={`/devis?offre=${selectedOffer}&poids=${simWeight}`}
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-slate-900 hover:bg-sky-600 text-white text-xs font-semibold rounded-lg transition-colors"
                   >
                     <span>Finaliser mon envoi</span>
                     <ChevronRight className="h-4 w-4" />

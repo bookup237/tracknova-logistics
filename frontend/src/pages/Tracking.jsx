@@ -49,6 +49,11 @@ export default function Tracking() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!trackingNumber.trim()) {
+      setTrackingNumber('FR-PARIS750');
+      searchShipment('FR-PARIS750');
+      return;
+    }
     searchShipment();
   };
 
@@ -86,6 +91,24 @@ export default function Tracking() {
               {loading ? 'Recherche...' : 'Rechercher'}
             </button>
           </form>
+
+          {/* Numéros de test rapide */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-blue-100">
+            <span className="opacity-90 font-medium">Exemples prêts à tester :</span>
+            {['FR-PARIS750', 'FR-LYON002', 'FR-MARSEILLE101', 'FR-NANTES456'].map(num => (
+              <button
+                key={num}
+                type="button"
+                onClick={() => {
+                  setTrackingNumber(num);
+                  searchShipment(num);
+                }}
+                className="px-2.5 py-1 bg-white/20 hover:bg-white/30 rounded-md font-mono text-white transition-colors cursor-pointer"
+              >
+                {num}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

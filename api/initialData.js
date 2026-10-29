@@ -1,4 +1,4 @@
-{
+export default {
   "users": [
     {
       "id": 1,
@@ -727,6 +727,110 @@
   ],
   "shipments": [
     {
+      "id": 9001,
+      "created_at": "2026-10-28T08:30:00.000Z",
+      "updated_at": "2026-10-29T10:15:00.000Z",
+      "tracking_number": "FR-PARIS750",
+      "sender_name": "Atelier Saint-Honoré Paris",
+      "sender_phone": "01 42 68 55 10",
+      "sender_email": "contact@atelier-sainthonore.fr",
+      "sender_address": "24 Rue du Faubourg Saint-Honoré",
+      "sender_city_id": 1,
+      "receiver_name": "Maison Bellecour",
+      "receiver_phone": "04 78 30 12 45",
+      "receiver_email": "commandes@maisonbellecour.fr",
+      "receiver_address": "15 Place Bellecour",
+      "receiver_city_id": 3,
+      "package_description": "Maroquinerie & Documents d'expédition express",
+      "weight": 2.4,
+      "dimensions": "35x25x15",
+      "package_type": "express",
+      "status": "en_livraison",
+      "price": 17.27,
+      "estimated_delivery": "2026-10-29",
+      "actual_delivery": null,
+      "notes": "Livraison express garantie avant 13h - Remise contre signature",
+      "created_by": 1
+    },
+    {
+      "id": 9002,
+      "created_at": "2026-10-28T14:20:00.000Z",
+      "updated_at": "2026-10-29T06:45:00.000Z",
+      "tracking_number": "FR-LYON002",
+      "sender_name": "BioPharma Lyon Tech",
+      "sender_phone": "04 72 10 99 80",
+      "sender_email": "expeditions@biopharma-lyon.fr",
+      "sender_address": "8 Rue Garibaldi",
+      "sender_city_id": 3,
+      "receiver_name": "Centre Hospitalier Sud",
+      "receiver_phone": "04 91 22 33 44",
+      "receiver_email": "logistique@hopital-sud.fr",
+      "receiver_address": "120 Boulevard Michelet",
+      "receiver_city_id": 2,
+      "package_description": "Matériel médical sécurisé sous température contrôlée",
+      "weight": 4.8,
+      "dimensions": "40x30x25",
+      "package_type": "fragile",
+      "status": "en_transit",
+      "price": 26.68,
+      "estimated_delivery": "2026-10-30",
+      "actual_delivery": null,
+      "notes": "Haute sécurité - Prise en charge fragile",
+      "created_by": 1
+    },
+    {
+      "id": 9003,
+      "created_at": "2026-10-27T09:00:00.000Z",
+      "updated_at": "2026-10-28T16:20:00.000Z",
+      "tracking_number": "FR-MARSEILLE101",
+      "sender_name": "Provence Terroir & Vins",
+      "sender_phone": "04 91 55 78 90",
+      "sender_email": "sales@provence-terroir.fr",
+      "sender_address": "45 Quai des Belges",
+      "sender_city_id": 2,
+      "receiver_name": "Hôtel Le Negresco",
+      "receiver_phone": "04 93 16 64 00",
+      "receiver_email": "concierge@hotel-negresco.fr",
+      "receiver_address": "37 Promenade des Anglais",
+      "receiver_city_id": 5,
+      "package_description": "Coffret millésimé verres & flacons artisanaux",
+      "weight": 6.2,
+      "dimensions": "45x35x30",
+      "package_type": "fragile",
+      "status": "livre",
+      "price": 31.42,
+      "estimated_delivery": "2026-10-28",
+      "actual_delivery": "2026-10-28",
+      "notes": "Livré en mains propres contre émargement électronique",
+      "created_by": 1
+    },
+    {
+      "id": 9004,
+      "created_at": "2026-10-28T16:00:00.000Z",
+      "updated_at": "2026-10-29T04:10:00.000Z",
+      "tracking_number": "FR-NANTES456",
+      "sender_name": "Atlantique Informatique",
+      "sender_phone": "02 40 12 34 56",
+      "sender_email": "contact@atlantique-info.fr",
+      "sender_address": "10 Rue Crébillon",
+      "sender_city_id": 6,
+      "receiver_name": "Aquitaine Solutions",
+      "receiver_phone": "05 56 78 90 12",
+      "receiver_email": "support@aquitaine-solutions.fr",
+      "receiver_address": "25 Rue Sainte-Catherine",
+      "receiver_city_id": 9,
+      "package_description": "Serveurs et équipements réseau haute densité",
+      "weight": 12,
+      "dimensions": "60x50x40",
+      "package_type": "standard",
+      "status": "au_hub",
+      "price": 35.99,
+      "estimated_delivery": "2026-10-30",
+      "actual_delivery": null,
+      "notes": "Tri automatique effectué sur la plateforme Atlantique Sud",
+      "created_by": 1
+    },
+    {
       "id": 1,
       "created_at": "2026-10-12T20:32:41.847Z",
       "updated_at": "2026-10-19T20:32:41.849Z",
@@ -1378,6 +1482,150 @@
     }
   ],
   "tracking_history": [
+    {
+      "id": 90001,
+      "created_at": "2026-10-28T08:30:00.000Z",
+      "shipment_id": 9001,
+      "status": "en_attente",
+      "location": "Paris (75001)",
+      "description": "Enregistrement de la commande d'expédition",
+      "updated_by": 1
+    },
+    {
+      "id": 90002,
+      "created_at": "2026-10-28T11:45:00.000Z",
+      "shipment_id": 9001,
+      "status": "collecte",
+      "location": "Paris Faubourg Saint-Honoré",
+      "description": "Colis collecté chez l'expéditeur par notre coursier",
+      "updated_by": 1
+    },
+    {
+      "id": 90003,
+      "created_at": "2026-10-28T19:30:00.000Z",
+      "shipment_id": 9001,
+      "status": "au_hub",
+      "location": "Plateforme Hub Roissy-Charles de Gaulle",
+      "description": "Arrivée au hub principal, tri express et étiquetage sécurisé",
+      "updated_by": 1
+    },
+    {
+      "id": 90004,
+      "created_at": "2026-10-29T02:15:00.000Z",
+      "shipment_id": 9001,
+      "status": "en_transit",
+      "location": "Axe Routier A6 Nord-Sud",
+      "description": "Acheminement nocturne vers la région Auvergne-Rhône-Alpes",
+      "updated_by": 1
+    },
+    {
+      "id": 90005,
+      "created_at": "2026-10-29T06:50:00.000Z",
+      "shipment_id": 9001,
+      "status": "au_hub",
+      "location": "Centre de Tri Lyon Saint-Exupéry",
+      "description": "Réception en agence de distribution locale",
+      "updated_by": 1
+    },
+    {
+      "id": 90006,
+      "created_at": "2026-10-29T08:15:00.000Z",
+      "shipment_id": 9001,
+      "status": "en_livraison",
+      "location": "Lyon Métropole (69002)",
+      "description": "Colis chargé dans la camionnette du livreur, livraison estimée ce jour avant 13h00",
+      "updated_by": 1
+    },
+    {
+      "id": 90011,
+      "created_at": "2026-10-28T14:20:00.000Z",
+      "shipment_id": 9002,
+      "status": "en_attente",
+      "location": "Lyon",
+      "description": "Création du bon de transport haute sécurité",
+      "updated_by": 1
+    },
+    {
+      "id": 90012,
+      "created_at": "2026-10-28T17:00:00.000Z",
+      "shipment_id": 9002,
+      "status": "collecte",
+      "location": "Lyon Part-Dieu",
+      "description": "Prise en charge par le service médical spécialisé",
+      "updated_by": 1
+    },
+    {
+      "id": 90013,
+      "created_at": "2026-10-29T06:45:00.000Z",
+      "shipment_id": 9002,
+      "status": "en_transit",
+      "location": "Couloir Rhodanien A7",
+      "description": "En transit vers le centre de distribution Méditerranée",
+      "updated_by": 1
+    },
+    {
+      "id": 90021,
+      "created_at": "2026-10-27T09:00:00.000Z",
+      "shipment_id": 9003,
+      "status": "en_attente",
+      "location": "Marseille",
+      "description": "Dossier d'expédition validé",
+      "updated_by": 1
+    },
+    {
+      "id": 90022,
+      "created_at": "2026-10-27T11:30:00.000Z",
+      "shipment_id": 9003,
+      "status": "collecte",
+      "location": "Marseille Vieux-Port",
+      "description": "Collecté et conditionné en caisse antichoc",
+      "updated_by": 1
+    },
+    {
+      "id": 90023,
+      "created_at": "2026-10-27T20:10:00.000Z",
+      "shipment_id": 9003,
+      "status": "au_hub",
+      "location": "Hub PACA Cavaillon",
+      "description": "Tri effectué avec succès",
+      "updated_by": 1
+    },
+    {
+      "id": 90024,
+      "created_at": "2026-10-28T08:00:00.000Z",
+      "shipment_id": 9003,
+      "status": "en_livraison",
+      "location": "Nice Centre",
+      "description": "En cours de tournée de livraison",
+      "updated_by": 1
+    },
+    {
+      "id": 90025,
+      "created_at": "2026-10-28T11:35:00.000Z",
+      "shipment_id": 9003,
+      "status": "livre",
+      "location": "Nice - Promenade des Anglais",
+      "description": "Colis remis au destinataire contre signature certifiée",
+      "updated_by": 1
+    },
+    {
+      "id": 90031,
+      "created_at": "2026-10-28T16:00:00.000Z",
+      "shipment_id": 9004,
+      "status": "collecte",
+      "location": "Nantes",
+      "description": "Enlèvement sur site chez l'expéditeur",
+      "updated_by": 1
+    },
+    {
+      "id": 90032,
+      "created_at": "2026-10-29T04:10:00.000Z",
+      "shipment_id": 9004,
+      "status": "au_hub",
+      "location": "Hub Ouest Atlantique",
+      "description": "Contrôle volumétrique et transit inter-régional",
+      "updated_by": 1
+    },
     {
       "id": 1,
       "created_at": "2026-10-12T20:32:41.847Z",
@@ -2198,4 +2446,4 @@
     "contact_messages": 2,
     "quote_requests": 1
   }
-}
+};
