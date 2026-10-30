@@ -4,11 +4,18 @@ import { Link } from 'react-router-dom';
 export default function Services() {
   return (
     <div>
-      {/* Header */}
-      <div className="hero-gradient py-16">
+      {/* Header sombre haute visibilité et lisibilité parfaite */}
+      <div className="bg-slate-900 hero-gradient py-14 sm:py-16 border-b border-slate-800 text-white shadow-inner">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-4">Nos Services</h1>
-          <p className="text-blue-200 text-lg">Des solutions d'expédition adaptées à tous vos besoins</p>
+          <div className="inline-block text-xs font-bold text-sky-400 bg-slate-800/80 border border-sky-800/50 px-3.5 py-1 rounded-full mb-3 tracking-wide">
+            Transport & Solutions d'Acheminement en France
+          </div>
+          <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-3">
+            Nos Services Logistiques
+          </h1>
+          <p className="text-slate-200 text-sm sm:text-base font-medium max-w-xl mx-auto">
+            Des solutions d'expédition fiables, rapides et adaptées à tous vos besoins sur l'ensemble du territoire français
+          </p>
         </div>
       </div>
 

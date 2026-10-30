@@ -21,6 +21,12 @@ input, select, textarea {
   -webkit-text-fill-color: #0f172a !important;
 }
 
+/* Bannière sombre haute visibilité et contraste parfait */
+.hero-gradient {
+  background: linear-gradient(135deg, #091e3a 0%, #0f172a 50%, #0369a1 100%) !important;
+  color: #ffffff !important;
+}
+
 input:focus, select:focus, textarea:focus {
   color: #0f172a !important;
   background-color: #ffffff !important;

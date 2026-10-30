@@ -68,39 +68,44 @@ export default function Tracking() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="hero-gradient py-16">
+      {/* Header avec contraste net et lisibilité parfaite */}
+      <div className="bg-slate-900 hero-gradient py-14 sm:py-16 border-b border-slate-800 text-white shadow-inner">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
-            Suivi de colis
+          <div className="inline-block text-xs font-bold text-sky-400 bg-slate-800/80 border border-sky-800/50 px-3.5 py-1 rounded-full mb-3 tracking-wide">
+            Acheminement National & Suivi en Direct
+          </div>
+
+          <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-3">
+            Suivi de colis TrackNova
           </h1>
-          <p className="text-blue-200 text-lg mb-8">
-            Entrez votre numéro de suivi pour connaître l'état de votre colis
+          <p className="text-slate-200 text-sm sm:text-base font-medium max-w-xl mx-auto mb-8">
+            Entrez votre numéro de suivi pour connaître l'acheminement de votre colis en temps réel
           </p>
 
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
             <div className="relative flex-grow">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
               <input
                 type="text"
                 placeholder="Ex: FR-A1B2C3D4"
                 value={trackingNumber}
                 onChange={(e) => setTrackingNumber(e.target.value.toUpperCase())}
-                className="w-full pl-12 pr-4 py-4 rounded-xl text-gray-800 focus:outline-none focus:ring-4 focus:ring-orange-300 shadow-lg text-lg"
+                style={{ color: '#0f172a', backgroundColor: '#ffffff', WebkitTextFillColor: '#0f172a' }}
+                className="w-full pl-12 pr-4 py-3.5 rounded-xl text-slate-900 bg-white font-bold border-2 border-slate-300 focus:outline-none focus:ring-4 focus:ring-sky-500 shadow-lg text-base"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition-all shadow-lg disabled:opacity-50"
+              className="px-8 py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-black rounded-xl transition-all shadow-lg shadow-orange-500/20 disabled:opacity-50 cursor-pointer text-base"
             >
               {loading ? 'Recherche...' : 'Rechercher'}
             </button>
           </form>
 
           {/* Numéros de test rapide */}
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-blue-100">
-            <span className="opacity-90 font-medium">Exemples prêts à tester :</span>
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs">
+            <span className="font-bold text-slate-300">Exemples prêts à tester :</span>
             {['FR-PARIS750', 'FR-LYON002', 'FR-MARSEILLE101', 'FR-NANTES456'].map(num => (
               <button
                 key={num}
@@ -109,7 +114,7 @@ export default function Tracking() {
                   setTrackingNumber(num);
                   searchShipment(num);
                 }}
-                className="px-2.5 py-1 bg-white/20 hover:bg-white/30 rounded-md font-mono text-white transition-colors cursor-pointer"
+                className="px-2.5 py-1 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 rounded-lg font-mono font-bold text-sky-400 hover:text-white transition-colors cursor-pointer shadow-sm"
               >
                 {num}
               </button>

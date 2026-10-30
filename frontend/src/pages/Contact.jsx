@@ -38,12 +38,26 @@ export default function Contact() {
     );
   }
 
+  const INPUT_STYLE = {
+    color: '#0f172a',
+    backgroundColor: '#ffffff',
+    WebkitTextFillColor: '#0f172a'
+  };
+
   return (
     <div>
-      <div className="hero-gradient py-16">
+      {/* Header sombre haute visibilité et lisibilité parfaite */}
+      <div className="bg-slate-900 hero-gradient py-14 sm:py-16 border-b border-slate-800 text-white shadow-inner">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-4">Contactez-nous</h1>
-          <p className="text-blue-200 text-lg">Notre équipe est à votre disposition pour répondre à toutes vos questions</p>
+          <div className="inline-block text-xs font-bold text-sky-400 bg-slate-800/80 border border-sky-800/50 px-3.5 py-1 rounded-full mb-3 tracking-wide">
+            Service Commercial & Support Client TrackNova France
+          </div>
+          <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-3">
+            Contactez-nous
+          </h1>
+          <p className="text-slate-200 text-sm sm:text-base font-medium max-w-xl mx-auto">
+            Notre équipe logistique en France est à votre disposition pour répondre à toutes vos questions
+          </p>
         </div>
       </div>
 
@@ -76,37 +90,76 @@ export default function Contact() {
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Nom complet *</label>
-                    <input name="name" value={form.name} onChange={handleChange} required
-                      className="w-full px-4 py-3 text-slate-900 bg-white font-medium border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    <label className="block text-sm font-bold text-slate-800 mb-2">Nom complet *</label>
+                    <input
+                      name="name"
+                      value={form.name}
+                      onChange={handleChange}
+                      required
+                      style={INPUT_STYLE}
+                      placeholder="Jean Dupont"
+                      className="w-full px-4 py-3 text-slate-900 bg-white font-semibold border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
-                    <input name="email" type="email" value={form.email} onChange={handleChange} required
-                      className="w-full px-4 py-3 text-slate-900 bg-white font-medium border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    <label className="block text-sm font-bold text-slate-800 mb-2">Email *</label>
+                    <input
+                      name="email"
+                      type="email"
+                      value={form.email}
+                      onChange={handleChange}
+                      required
+                      style={INPUT_STYLE}
+                      placeholder="jean.dupont@email.fr"
+                      className="w-full px-4 py-3 text-slate-900 bg-white font-semibold border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
+                    />
                   </div>
                 </div>
                 <div className="grid md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
-                    <input name="phone" value={form.phone} onChange={handleChange}
-                      className="w-full px-4 py-3 text-slate-900 bg-white font-medium border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    <label className="block text-sm font-bold text-slate-800 mb-2">Téléphone</label>
+                    <input
+                      name="phone"
+                      value={form.phone}
+                      onChange={handleChange}
+                      style={INPUT_STYLE}
+                      placeholder="06 12 34 56 78"
+                      className="w-full px-4 py-3 text-slate-900 bg-white font-semibold border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Sujet *</label>
-                    <input name="subject" value={form.subject} onChange={handleChange} required
-                      className="w-full px-4 py-3 text-slate-900 bg-white font-medium border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    <label className="block text-sm font-bold text-slate-800 mb-2">Sujet *</label>
+                    <input
+                      name="subject"
+                      value={form.subject}
+                      onChange={handleChange}
+                      required
+                      style={INPUT_STYLE}
+                      placeholder="Information sur un tarif ou une expédition"
+                      className="w-full px-4 py-3 text-slate-900 bg-white font-semibold border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm"
+                    />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Message *</label>
-                  <textarea name="message" value={form.message} onChange={handleChange} required rows={5}
-                    className="w-full px-4 py-3 text-slate-900 bg-white font-medium border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" />
+                  <label className="block text-sm font-bold text-slate-800 mb-2">Message *</label>
+                  <textarea
+                    name="message"
+                    value={form.message}
+                    onChange={handleChange}
+                    required
+                    rows={5}
+                    style={INPUT_STYLE}
+                    placeholder="Votre message..."
+                    className="w-full px-4 py-3 text-slate-900 bg-white font-semibold border-2 border-slate-300 rounded-xl focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm resize-none"
+                  />
                 </div>
-                <button type="submit" disabled={loading}
-                  className="w-full py-4 bg-blue-900 hover:bg-blue-800 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-4 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                >
                   <Send className="h-5 w-5" />
-                  {loading ? 'Envoi en cours...' : 'Envoyer le message'}
+                  <span>{loading ? 'Envoi en cours...' : 'Envoyer le message'}</span>
                 </button>
               </form>
             </div>
