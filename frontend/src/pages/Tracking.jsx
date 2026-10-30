@@ -50,8 +50,7 @@ export default function Tracking() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!trackingNumber.trim()) {
-      setTrackingNumber('FR-PARIS750');
-      searchShipment('FR-PARIS750');
+      setError('Veuillez entrer votre numéro de suivi.');
       return;
     }
     searchShipment();
@@ -103,22 +102,10 @@ export default function Tracking() {
             </button>
           </form>
 
-          {/* Numéros de test rapide */}
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs">
-            <span className="font-bold text-slate-300">Exemples prêts à tester :</span>
-            {['FR-PARIS750', 'FR-LYON002', 'FR-MARSEILLE101', 'FR-NANTES456'].map(num => (
-              <button
-                key={num}
-                type="button"
-                onClick={() => {
-                  setTrackingNumber(num);
-                  searchShipment(num);
-                }}
-                className="px-2.5 py-1 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 rounded-lg font-mono font-bold text-sky-400 hover:text-white transition-colors cursor-pointer shadow-sm"
-              >
-                {num}
-              </button>
-            ))}
+          {/* Information d'aide au suivi */}
+          <div className="mt-5 flex items-center justify-center gap-2 text-xs text-slate-300">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span>Le numéro de suivi est indiqué dans votre email ou SMS de confirmation d'expédition</span>
           </div>
         </div>
       </div>

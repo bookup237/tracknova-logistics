@@ -11,9 +11,9 @@ export default function Home() {
   const handleTrack = (e) => {
     e.preventDefault();
     if (trackingNumber.trim()) {
-      navigate(`/suivi?numero=${trackingNumber.trim()}`);
+      navigate(`/suivi?numero=${trackingNumber.trim().toUpperCase()}`);
     } else {
-      navigate('/suivi?numero=FR-PARIS750');
+      navigate('/suivi');
     }
   };
 
@@ -67,18 +67,9 @@ export default function Home() {
                     Suivre le colis
                   </button>
                 </form>
-                <div className="flex flex-wrap items-center gap-2 pt-2 px-1 text-xs text-slate-500">
-                  <span className="font-medium">Numéros de test :</span>
-                  {['FR-PARIS750', 'FR-LYON002', 'FR-MARSEILLE101'].map(demo => (
-                    <button
-                      key={demo}
-                      type="button"
-                      onClick={() => navigate(`/suivi?numero=${demo}`)}
-                      className="px-2 py-0.5 bg-slate-200 hover:bg-sky-100 hover:text-sky-700 text-slate-700 rounded font-mono font-semibold transition-colors"
-                    >
-                      {demo}
-                    </button>
-                  ))}
+                <div className="flex items-center gap-1.5 pt-2 px-1 text-xs text-slate-500">
+                  <span className="font-semibold text-slate-700">Format :</span>
+                  <span>Numéro d'expédition à 10 caractères figurant sur votre bordereau ou récépissé</span>
                 </div>
               </div>
 
