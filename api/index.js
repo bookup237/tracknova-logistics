@@ -859,6 +859,8 @@ app.delete('/api/shipments/:id', authenticateToken, (req, res) => {
   }
 });
 
+export { app };
+
 // Vercel serverless handler
 export default function handler(req, res) {
   return app(req, res);
