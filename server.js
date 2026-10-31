@@ -1,4 +1,6 @@
 import { app } from './api/index.js';
+import db from './api/db.js';
+import { isPostgresConfigured } from './api/postgres.js';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -28,15 +30,26 @@ if (fs.existsSync(distPath)) {
   });
 }
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`
+async function startServer() {
+  if (isPostgresConfigured()) {
+    console.log('[PostgreSQL] Initialisation de la connexion à la base de données PostgreSQL...');
+    await db.initPostgresSync();
+  }
+
+  app.listen(PORT, '0.0.0.0', () => {
+    const pgStatus = isPostgresConfigured() ? 'Connecté (PostgreSQL Railway)' : 'Fichier / Cloud Store';
+    console.log(`
   ╔══════════════════════════════════════════════════╗
   ║   🚚 TrackNova Logistics - Production Server     ║
   ║   ──────────────────────────────────────────     ║
   ║   Serveur démarré sur le port : ${PORT}             ║
   ║   Prêt pour Railway & Standalone (0.0.0.0)       ║
-  ║   API: /api/*                                    ║
-  ║   Frontend: ${fs.existsSync(distPath) ? 'Actif (dist)' : 'Non compilé'}                        ║
+  ║   Base de données : ${pgStatus}  ║
+  ║   API : /api/*                                   ║
+  ║   Frontend : ${fs.existsSync(distPath) ? 'Actif (dist)' : 'Non compilé'}                        ║
   ╚══════════════════════════════════════════════════╝
-  `);
-});
+    `);
+  });
+}
+
+startServer();
