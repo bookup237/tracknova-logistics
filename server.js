@@ -22,6 +22,16 @@ if (fs.existsSync(distPath)) {
     res.send('google-site-verification: googlee0004df97bafc526.html');
   });
 
+  // Route dédiée pour le favicon officiel Google
+  app.get('/favicon.ico', (req, res) => {
+    const icoPath = path.join(distPath, 'favicon.ico');
+    if (fs.existsSync(icoPath)) {
+      res.setHeader('Content-Type', 'image/x-icon');
+      return res.sendFile(icoPath);
+    }
+    res.status(404).end();
+  });
+
   // Catch-all pour le routeur client SPA (React Router)
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api')) {
