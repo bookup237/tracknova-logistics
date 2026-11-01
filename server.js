@@ -16,10 +16,20 @@ const distPath = path.join(__dirname, 'frontend/dist');
 if (fs.existsSync(distPath)) {
   app.use(express.static(distPath));
 
+  // Route directe pour la validation Google Search Console
+  app.get('/googlee0004df97bafc526.html', (req, res) => {
+    res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+    res.send('google-site-verification: googlee0004df97bafc526.html');
+  });
+
   // Catch-all pour le routeur client SPA (React Router)
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api')) {
       return next();
+    }
+    const requestedFile = path.join(distPath, req.path);
+    if (fs.existsSync(requestedFile) && fs.statSync(requestedFile).isFile()) {
+      return res.sendFile(requestedFile);
     }
     res.sendFile(path.join(distPath, 'index.html'));
   });
