@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /backoffice-portal/
+Disallow: /api/
+
+Sitemap: https://tracknova.fr/sitemap.xml
