@@ -57,7 +57,9 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-sky-400 flex-shrink-0" />
-                <span>contact@tracknova-logistics.fr</span>
+                <a href="mailto:contact@tracknova.fr" className="text-slate-200 hover:text-sky-400 font-semibold transition-colors">
+                  contact@tracknova.fr
+                </a>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 text-sky-400 flex-shrink-0 mt-0.5" />

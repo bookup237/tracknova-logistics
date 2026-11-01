@@ -278,7 +278,13 @@ app.post('/api/auth/login', (req, res) => {
       return res.status(400).json({ error: 'Email et mot de passe requis' });
     }
 
-    const user = db.findOne('users', u => u.email === email);
+    const cleanInput = (email || '').trim().toLowerCase();
+    const user = db.findOne('users', u =>
+      (u.email && u.email.toLowerCase() === cleanInput) ||
+      (u.username && u.username.toLowerCase() === cleanInput) ||
+      (cleanInput === 'contact@tracknova.fr' && (u.role === 'admin' || u.email === 'admin@franceexpress.fr' || u.email === 'contact@tracknova.fr')) ||
+      (cleanInput === 'admin@franceexpress.fr' && (u.role === 'admin' || u.email === 'admin@franceexpress.fr' || u.email === 'contact@tracknova.fr'))
+    );
     if (!user) {
       return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
     }

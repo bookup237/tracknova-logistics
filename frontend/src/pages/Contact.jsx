@@ -67,7 +67,7 @@ export default function Contact() {
           <div className="space-y-6">
             {[
               { icon: <Phone />, title: 'Téléphone & Service Client', lines: ['+33 6 44 69 41 92', 'Lundi au Samedi : 8h - 20h'] },
-              { icon: <Mail />, title: 'Email', lines: ['contact@tracknova-logistics.fr', 'Réponse sous 24h'] },
+              { icon: <Mail />, title: 'Email', lines: ['contact@tracknova.fr', 'Réponse sous 24h'] },
               { icon: <MapPin />, title: 'Plateforme Logistique', lines: ['Plateforme Paris Roissy', '95700 Roissy-en-France'] },
               { icon: <Clock />, title: 'Horaires expéditions', lines: ['Départs quotidiens 24/7', 'Service continu en France'] },
             ].map(info => (

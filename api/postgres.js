@@ -193,6 +193,11 @@ export async function initPostgres() {
         );
       }
       console.log('[PostgreSQL] Initialisation terminée avec succès.');
+    } else {
+      // Mettre à jour l'email de l'administrateur vers contact@tracknova.fr
+      try {
+        await p.query("UPDATE users SET email = 'contact@tracknova.fr', payload = jsonb_set(payload, '{email}', '\"contact@tracknova.fr\"') WHERE username = 'admin' OR id = 1");
+      } catch (e) {}
     }
 
     // Charger les données existantes de PostgreSQL
