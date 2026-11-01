@@ -70,6 +70,14 @@ function calculatePrice(weight, packageType) {
 }
 
 // ─────────────────────────────────────────────
+// VALIDATION GOOGLE SEARCH CONSOLE & ROBOTS
+// ─────────────────────────────────────────────
+app.get('/googlee0004df97bafc526.html', (req, res) => {
+  res.setHeader('Content-Type', 'text/html');
+  res.send('google-site-verification: googlee0004df97bafc526.html');
+});
+
+// ─────────────────────────────────────────────
 // ROUTES DE SANTÉ
 // ─────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
