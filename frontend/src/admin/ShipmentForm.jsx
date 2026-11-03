@@ -3,77 +3,13 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Package, Send, ArrowLeft, MapPin, Search, ChevronDown, Check, Copy, ExternalLink, CheckCircle2, PlusCircle, ArrowRight } from 'lucide-react';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
+import { ALL_FRENCH_CITIES, POPULAR_QUICK_CITIES } from '../data/cities';
 
 const INPUT_STYLE = {
   color: '#0f172a',
   backgroundColor: '#ffffff',
   WebkitTextFillColor: '#0f172a'
 };
-
-const ALL_FRENCH_CITIES = [
-  { id: 1, name: 'Paris', code_postal: '75000', region: 'Île-de-France' },
-  { id: 2, name: 'Marseille', code_postal: '13000', region: 'Provence-Alpes-Côte d\'Azur' },
-  { id: 3, name: 'Lyon', code_postal: '69000', region: 'Auvergne-Rhône-Alpes' },
-  { id: 4, name: 'Toulouse', code_postal: '31000', region: 'Occitanie' },
-  { id: 5, name: 'Nice', code_postal: '06000', region: 'Provence-Alpes-Côte d\'Azur' },
-  { id: 6, name: 'Nantes', code_postal: '44000', region: 'Pays de la Loire' },
-  { id: 7, name: 'Montpellier', code_postal: '34000', region: 'Occitanie' },
-  { id: 8, name: 'Strasbourg', code_postal: '67000', region: 'Grand Est' },
-  { id: 9, name: 'Bordeaux', code_postal: '33000', region: 'Nouvelle-Aquitaine' },
-  { id: 10, name: 'Lille', code_postal: '59000', region: 'Hauts-de-France' },
-  { id: 11, name: 'Rennes', code_postal: '35000', region: 'Bretagne' },
-  { id: 12, name: 'Reims', code_postal: '51100', region: 'Grand Est' },
-  { id: 13, name: 'Saint-Étienne', code_postal: '42000', region: 'Auvergne-Rhône-Alpes' },
-  { id: 14, name: 'Toulon', code_postal: '83000', region: 'Provence-Alpes-Côte d\'Azur' },
-  { id: 15, name: 'Le Havre', code_postal: '76600', region: 'Normandie' },
-  { id: 16, name: 'Grenoble', code_postal: '38000', region: 'Auvergne-Rhône-Alpes' },
-  { id: 17, name: 'Dijon', code_postal: '21000', region: 'Bourgogne-Franche-Comté' },
-  { id: 18, name: 'Angers', code_postal: '49000', region: 'Pays de la Loire' },
-  { id: 19, name: 'Nîmes', code_postal: '30000', region: 'Occitanie' },
-  { id: 20, name: 'Villeurbanne', code_postal: '69100', region: 'Auvergne-Rhône-Alpes' },
-  { id: 21, name: 'Clermont-Ferrand', code_postal: '63000', region: 'Auvergne-Rhône-Alpes' },
-  { id: 22, name: 'Aix-en-Provence', code_postal: '13100', region: 'Provence-Alpes-Côte d\'Azur' },
-  { id: 23, name: 'Brest', code_postal: '29200', region: 'Bretagne' },
-  { id: 24, name: 'Tours', code_postal: '37000', region: 'Centre-Val de Loire' },
-  { id: 25, name: 'Amiens', code_postal: '80000', region: 'Hauts-de-France' },
-  { id: 26, name: 'Limoges', code_postal: '87000', region: 'Nouvelle-Aquitaine' },
-  { id: 27, name: 'Annecy', code_postal: '74000', region: 'Auvergne-Rhône-Alpes' },
-  { id: 28, name: 'Perpignan', code_postal: '66000', region: 'Occitanie' },
-  { id: 29, name: 'Boulogne-Billancourt', code_postal: '92100', region: 'Île-de-France' },
-  { id: 30, name: 'Metz', code_postal: '57000', region: 'Grand Est' },
-  { id: 31, name: 'Besançon', code_postal: '25000', region: 'Bourgogne-Franche-Comté' },
-  { id: 32, name: 'Orléans', code_postal: '45000', region: 'Centre-Val de Loire' },
-  { id: 33, name: 'Saint-Denis', code_postal: '93200', region: 'Île-de-France' },
-  { id: 34, name: 'Rouen', code_postal: '76000', region: 'Normandie' },
-  { id: 35, name: 'Argenteuil', code_postal: '95100', region: 'Île-de-France' },
-  { id: 36, name: 'Montreuil', code_postal: '93100', region: 'Île-de-France' },
-  { id: 37, name: 'Mulhouse', code_postal: '68100', region: 'Grand Est' },
-  { id: 38, name: 'Caen', code_postal: '14000', region: 'Normandie' },
-  { id: 39, name: 'Nancy', code_postal: '54000', region: 'Grand Est' },
-  { id: 40, name: 'Tourcoing', code_postal: '59200', region: 'Hauts-de-France' },
-  { id: 41, name: 'Roubaix', code_postal: '59100', region: 'Hauts-de-France' },
-  { id: 42, name: 'Nanterre', code_postal: '92000', region: 'Île-de-France' },
-  { id: 43, name: 'Vitry-sur-Seine', code_postal: '94400', region: 'Île-de-France' },
-  { id: 44, name: 'Avignon', code_postal: '84000', region: 'Provence-Alpes-Côte d\'Azur' },
-  { id: 45, name: 'Créteil', code_postal: '94000', region: 'Île-de-France' },
-  { id: 46, name: 'Dunkerque', code_postal: '59140', region: 'Hauts-de-France' },
-  { id: 47, name: 'Poitiers', code_postal: '86000', region: 'Nouvelle-Aquitaine' },
-  { id: 48, name: 'Aubervilliers', code_postal: '93300', region: 'Île-de-France' },
-  { id: 49, name: 'Calais', code_postal: '62100', region: 'Hauts-de-France' },
-  { id: 50, name: 'Cannes', code_postal: '06400', region: 'Provence-Alpes-Côte d\'Azur' },
-];
-
-const POPULAR_QUICK_CITIES = [
-  { id: 1, name: 'Paris', code: '75' },
-  { id: 3, name: 'Lyon', code: '69' },
-  { id: 2, name: 'Marseille', code: '13' },
-  { id: 4, name: 'Toulouse', code: '31' },
-  { id: 9, name: 'Bordeaux', code: '33' },
-  { id: 6, name: 'Nantes', code: '44' },
-  { id: 10, name: 'Lille', code: '59' },
-  { id: 8, name: 'Strasbourg', code: '67' },
-  { id: 5, name: 'Nice', code: '06' },
-];
 
 function CitySelector({ label, selectedId, onSelect, allCities }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -167,20 +103,28 @@ function CitySelector({ label, selectedId, onSelect, allCities }) {
 
       {/* Raccourcis métropoles */}
       <div className="flex flex-wrap items-center gap-1 pt-1">
-        {POPULAR_QUICK_CITIES.map(quick => (
-          <button
-            key={quick.id}
-            type="button"
-            onClick={() => onSelect(quick.id)}
-            className={`text-[11px] px-2 py-0.5 rounded font-semibold transition-colors ${
-              Number(selectedId) === Number(quick.id)
-                ? 'bg-sky-600 text-white'
-                : 'bg-slate-100 text-slate-700 hover:bg-sky-100 hover:text-sky-800 border border-slate-200'
-            }`}
-          >
-            {quick.name} ({quick.code})
-          </button>
-        ))}
+        {POPULAR_QUICK_CITIES.map(quick => {
+          const matchingCity = allCities.find(c => c.name.toLowerCase() === quick.name.toLowerCase());
+          const isSelected = matchingCity && Number(selectedId) === Number(matchingCity.id);
+          return (
+            <button
+              key={quick.name}
+              type="button"
+              onClick={() => {
+                if (matchingCity) {
+                  onSelect(matchingCity.id);
+                }
+              }}
+              className={`text-[11px] px-2 py-0.5 rounded font-semibold transition-colors ${
+                isSelected
+                  ? 'bg-sky-600 text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-700 hover:bg-sky-100 hover:text-sky-800 border border-slate-200'
+              }`}
+            >
+              {quick.name} ({quick.code})
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -202,7 +146,7 @@ export default function ShipmentForm() {
     receiver_phone: '',
     receiver_email: '',
     receiver_address: '',
-    receiver_city_id: 3, // Lyon par défaut
+    receiver_city_id: 10, // Lyon par défaut (ID 10)
     package_description: '',
     weight: '2.5',
     dimensions: '30x20x15',
