@@ -50,15 +50,10 @@ if (fs.existsSync(distPath)) {
   });
 }
 
-async function startServer() {
-  if (isPostgresConfigured()) {
-    console.log('[PostgreSQL] Initialisation de la connexion à la base de données PostgreSQL...');
-    await db.initPostgresSync();
-  }
-
-  app.listen(PORT, '0.0.0.0', () => {
-    const pgStatus = isPostgresConfigured() ? 'Connecté (PostgreSQL Railway)' : 'Fichier / Cloud Store';
-    console.log(`
+// Démarrer l'écoute HTTP IMMÉDIATEMENT pour que Railway valide le healthcheck sans délai
+const pgStatus = isPostgresConfigured() ? 'Connecté (PostgreSQL Railway)' : 'Fichier / Cloud Store';
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`
   ╔══════════════════════════════════════════════════╗
   ║   🚚 TrackNova Logistics - Production Server     ║
   ║   ──────────────────────────────────────────     ║
@@ -68,8 +63,12 @@ async function startServer() {
   ║   API : /api/*                                   ║
   ║   Frontend : ${fs.existsSync(distPath) ? 'Actif (dist)' : 'Non compilé'}                        ║
   ╚══════════════════════════════════════════════════╝
-    `);
+  `);
+});
+
+// Initialiser PostgreSQL en arrière-plan sans JAMAIS bloquer le port HTTP
+if (isPostgresConfigured()) {
+  db.initPostgresSync().catch((err) => {
+    console.warn('[PostgreSQL] Initialisation asynchrone info:', err.message);
   });
 }
-
-startServer();

@@ -8,12 +8,13 @@ import { ALL_FRENCH_CITIES, POPULAR_QUICK_CITIES } from '../data/cities';
 /**
  * Composant de sélection de ville avec recherche instantanée et suggestions visuelles
  */
-function CityAutocomplete({ label, selectedId, onSelect, allCities }) {
+function CityAutocomplete({ label, selectedId, onSelect, allCities = [] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const wrapperRef = useRef(null);
 
-  const selectedCity = allCities.find(c => Number(c.id) === Number(selectedId)) || allCities[0];
+  const safeCities = Array.isArray(allCities) && allCities.length > 0 ? allCities : ALL_FRENCH_CITIES;
+  const selectedCity = safeCities.find(c => Number(c?.id) === Number(selectedId)) || safeCities[0];
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -27,14 +28,14 @@ function CityAutocomplete({ label, selectedId, onSelect, allCities }) {
 
   // Filtrer les propositions selon la recherche
   const filtered = searchTerm.trim() === ''
-    ? allCities.slice(0, 15)
-    : allCities.filter(c => {
+    ? safeCities.slice(0, 15)
+    : safeCities.filter(c => {
+        if (!c) return false;
         const q = searchTerm.toLowerCase();
-        return (
-          c.name.toLowerCase().includes(q) ||
-          c.code_postal.includes(q) ||
-          (c.departement && c.departement.toLowerCase().includes(q))
-        );
+        const nameMatch = c.name && c.name.toLowerCase().includes(q);
+        const postalMatch = c.code_postal && String(c.code_postal).includes(q);
+        const depMatch = c.departement && c.departement.toLowerCase().includes(q);
+        return Boolean(nameMatch || postalMatch || depMatch);
       }).slice(0, 15);
 
   return (
